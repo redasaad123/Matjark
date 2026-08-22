@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Project</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Project.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="site">
+        <div class="header-inner">
+            <button class="icon-btn burger" id="burgerBtn" aria-label="القائمة"><svg><use href="#ic-menu" /></svg></button>
+            <a href="#" class="logo"><svg class="mark"><use href="#ic-hanger" /></svg> زي</a>
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="#hero">الرئيسية</a></li>
+                    <li><a href="#shop" data-navfilter="men">رجالي</a></li>
+                    <li><a href="#shop" data-navfilter="women">حريمي</a></li>
+                    <li><a href="#shop" data-navfilter="accessories">إكسسوارات</a></li>
+                    <li><a href="#shop" data-navfilter="sale">تخفيضات</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn" id="cartBtn" aria-label="فتح السلة">
+                    <svg><use href="#ic-cart" /></svg>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+            <span>🚚 شحن مجاني للطلبات فوق ١٥٠٠ ج.م</span>
+            <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
+            <span>💳 الدفع عند الاستلام متاح</span>
+            <span>🚚 شحن مجاني للطلبات فوق ١٥٠٠ ج.م</span>
+            <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
+            <span>💳 الدفع عند الاستلام متاح</span>
+        </div>
+    </div>
+
+    <section class="hero" id="hero">
+        <div class="hero-inner">
+            <div>
+                <p class="eyebrow">تشكيلة الموسم</p>
+                <h1>لبس بيعبّر عنك،<br><em>زي</em> ما إنت عايز.</h1>
+                <p>قطع مختارة بعناية لخزانة يومك — من التيشرتات البسيطة لحتة الشتا التقيلة. جودة تدوم، وسعر يرضيك.</p>
+                <div class="hero-cta-row">
+                    <a href="#shop" class="btn">تسوق الآن <svg width="16" height="16"><use href="#ic-plus" /></svg></a>
+                    <a href="#shop" class="btn ghost" data-navfilter="sale">شوف التخفيضات</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hanger-rod"></div>
+                <svg class="hanging" viewBox="0 0 100 100" style="color:var(--gold-2)"><use href="#ic-hanger" /></svg>
+            </div>
+        </div>
+    </section>
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    @* <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Project - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer> *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
