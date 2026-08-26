@@ -13,22 +13,29 @@ namespace Core.Models
         public string Id { get; set; }
 
         public string Name { get; set; }
+
+        public string? Description { get; set; }
         [ForeignKey("CategoryId")]
         public string CategoryId { get; set; }
         [NotMapped]
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
 
         public string Gender { get; set; }
 
-        public decimal UnitPrice { get; set; }
+        public List<string>? ImageUrl { get; set; }
+
+        public decimal? OldPrice { get; set; }
+        public decimal? UnitPrice => IsDiscounted ? OldPrice - (OldPrice * DiscountPercentage) : OldPrice   ;
 
         public int Quantity { get; set; }
 
         public List<Sizes> Sizes { get; set; }
 
-        public bool IsDiscounted { get; set; }
+        public bool IsDiscounted { get; set; } = false;
 
-        public decimal DiscountPercentage { get; set; }
+        public decimal? DiscountPercentage { get; set; }
+
+
 
 
     }

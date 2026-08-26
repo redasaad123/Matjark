@@ -10,6 +10,6 @@ namespace Core.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public List<Products> Products { get; set; }
+        public List<Products>? Products { get; set; }
     }
 }

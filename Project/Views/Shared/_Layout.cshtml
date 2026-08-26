@@ -16,11 +16,13 @@
             <a href="#" class="logo"><svg class="mark"><use href="#ic-hanger" /></svg> زي</a>
             <nav class="main-nav" id="mainNav">
                 <ul>
-                    <li><a href="#hero">الرئيسية</a></li>
-                    <li><a href="#shop" data-navfilter="men">رجالي</a></li>
-                    <li><a href="#shop" data-navfilter="women">حريمي</a></li>
-                    <li><a href="#shop" data-navfilter="accessories">إكسسوارات</a></li>
-                    <li><a href="#shop" data-navfilter="sale">تخفيضات</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="hero" >الرئيسية</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="man">رجالي</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="women" >حريمي</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="accessories">إكسسوارات</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="sale">تخفيضات</a></li>
+                    <li><a asp-controller="Manage" asp-action="AddProducts" class="">Add Product</a></li>
+                    <li><a asp-controller="Category" asp-action="AddCategory" class="">Add Category</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
@@ -31,35 +33,6 @@
             </div>
         </div>
     </header>
-
-    <div class="marquee" aria-hidden="true">
-        <div class="marquee-track">
-            <span>🚚 شحن مجاني للطلبات فوق ١٥٠٠ ج.م</span>
-            <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
-            <span>💳 الدفع عند الاستلام متاح</span>
-            <span>🚚 شحن مجاني للطلبات فوق ١٥٠٠ ج.م</span>
-            <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
-            <span>💳 الدفع عند الاستلام متاح</span>
-        </div>
-    </div>
-
-    <section class="hero" id="hero">
-        <div class="hero-inner">
-            <div>
-                <p class="eyebrow">تشكيلة الموسم</p>
-                <h1>لبس بيعبّر عنك،<br><em>زي</em> ما إنت عايز.</h1>
-                <p>قطع مختارة بعناية لخزانة يومك — من التيشرتات البسيطة لحتة الشتا التقيلة. جودة تدوم، وسعر يرضيك.</p>
-                <div class="hero-cta-row">
-                    <a href="#shop" class="btn">تسوق الآن <svg width="16" height="16"><use href="#ic-plus" /></svg></a>
-                    <a href="#shop" class="btn ghost" data-navfilter="sale">شوف التخفيضات</a>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="hanger-rod"></div>
-                <svg class="hanging" viewBox="0 0 100 100" style="color:var(--gold-2)"><use href="#ic-hanger" /></svg>
-            </div>
-        </div>
-    </section>
     <div class="container-fluid">
         <main role="main" class="pb-3">
             @RenderBody()

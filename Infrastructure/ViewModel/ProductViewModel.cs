@@ -1,33 +1,22 @@
 ﻿using Core.enums;
-using Core.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.ViewModel
 {
-    internal class ProductViewModel
+    public class ProductViewModel
     {
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-      
-        public string CategoryId { get; set; }
-
-        public string Gender { get; set; }
-
-        public decimal UnitPrice { get; set; }
-
+        public string? Name { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
+        public string? Cat { get; set; } = "men";
+        public string? Gender { get; set; } = string.Empty;
         public int Quantity { get; set; }
-
-        public List<Sizes> Sizes { get; set; }
-
-        public bool IsDiscounted { get; set; }
-
-        public decimal DiscountPercentage { get; set; }
-
+        public List<string>? GetImages { get; set; }
+        public bool IsDiscounted { get; set; } = false;
+        public decimal? DiscountPercentage { get; set; }
     }
 }

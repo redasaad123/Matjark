@@ -1,5 +1,8 @@
+using Core.Services;
 using Infrastructure;
 using Infrastructure.InterFace;
+using Infrastructure.InterFace.Services;
+using Infrastructure.Services;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +18,9 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 });
 
 builder.Services.AddTransient<AppDBContext>();
+builder.Services.AddTransient<ImageStore>();
+builder.Services.AddTransient<IProductService, ProductService>();
+builder.Services.AddTransient<ICategoryService, CategroyService>();
 
 builder.Services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 

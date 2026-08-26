@@ -1,4 +1,5 @@
-﻿@{
+@model List<Infrastructure.ViewModel.GetProductViewModel>
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -70,7 +71,7 @@
     </div>
 </header> *@
 
-@* <div class="marquee" aria-hidden="true">
+<div class="marquee" aria-hidden="true">
     <div class="marquee-track">
         <span>🚚 شحن مجاني للطلبات فوق ١٥٠٠ ج.م</span>
         <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
@@ -79,10 +80,10 @@
         <span>↩︎ إرجاع مجاني خلال ١٤ يوم</span>
         <span>💳 الدفع عند الاستلام متاح</span>
     </div>
-</div> *@
+</div> 
 
 <!-- ============ HERO ============ -->
-@* <section class="hero" id="hero">
+<section class="hero" id="hero">
     <div class="hero-inner">
         <div>
             <p class="eyebrow">تشكيلة الموسم</p>
@@ -98,7 +99,7 @@
             <svg class="hanging" viewBox="0 0 100 100" style="color:var(--gold-2)"><use href="#ic-hanger" /></svg>
         </div>
     </div>
-</section> *@
+</section> 
 
 <!-- ============ SHOP ============ -->
 <section class="section" id="shop">
@@ -111,7 +112,7 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
                 <div class="filters" id="filters">
                     <button class="chip active" data-filter="all">الكل</button>
-                    <button class="chip" data-filter="men">رجالي</button>
+                    <button class="chip" data-filter="man">رجالي</button>
                     <button class="chip" data-filter="women">حريمي</button>
                     <button class="chip" data-filter="accessories">إكسسوارات</button>
                     <button class="chip" data-filter="sale">تخفيضات</button>
@@ -155,7 +156,7 @@
         <div>
             <h4>تسوق</h4>
             <ul>
-                <li><a href="#shop" data-navfilter="men">رجالي</a></li>
+                <li><a href="#shop" data-navfilter="man">رجالي</a></li>
                 <li><a href="#shop" data-navfilter="women">حريمي</a></li>
                 <li><a href="#shop" data-navfilter="accessories">إكسسوارات</a></li>
                 <li><a href="#shop" data-navfilter="sale">تخفيضات</a></li>
@@ -212,4 +213,12 @@
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
+
+@section Scripts {
+    <script>
+        // تمرير البيانات من C# Model إلى دالة الـ JavaScript في site.js
+        const serverProducts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+        window.initProducts(serverProducts);
+    </script>
+}
 
