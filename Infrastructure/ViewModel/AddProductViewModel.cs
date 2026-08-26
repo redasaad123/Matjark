@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -10,8 +10,6 @@ namespace Infrastructure.ViewModel
 {
     public class AddProductViewModel : ProductViewModel
     {
-
-        public decimal? OldPrice { get; set; }
         public List<IFormFile>? Images { get; set; }
 
         public List<Sizes>? Sizes { get; set; } = new();

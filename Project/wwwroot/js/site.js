@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     "use strict";
 
     /* =========================================================
@@ -148,7 +148,16 @@
                 Array.isArray(rawSizes) &&
                     rawSizes.length > 0
                     ? rawSizes
-                    : ["مقاس واحد"]
+                    : ["مقاس واحد"],
+
+            isDiscounted:
+                p.isDiscounted !== undefined && p.isDiscounted !== null
+                    ? Boolean(p.isDiscounted)
+                    : (
+                        p.IsDiscounted !== undefined && p.IsDiscounted !== null
+                            ? Boolean(p.IsDiscounted)
+                            : false
+                    )
         };
     }
 
@@ -272,8 +281,8 @@
         if (currentFilter === "all")
             return true;
 
-        if (currentFilter === "sale") {
-            return p.IsDiscounted === true;
+        if (currentFilter === "sale" || currentFilter === "sales") {
+            return p.isDiscounted === true || p.IsDiscounted === true;
         }
 
         return p.cat === currentFilter;
@@ -366,7 +375,7 @@
                 }"
                 >
 
-                    ${p.old
+                    ${p.isDiscounted
                     ? `
                                 <div class="tag-fold">
                                     <span>خصم</span>
@@ -374,7 +383,6 @@
                             `
                     : ""
                 }
-
                     ${renderProductMedia(p)}
 
                 </div>
@@ -400,7 +408,7 @@
                             ${fmt(p.price)}
                         </span>
 
-                        ${p.old
+                        ${(p.isDiscounted)
                     ? `
                                     <span class="price-old">
                                         ${fmt(p.old)}

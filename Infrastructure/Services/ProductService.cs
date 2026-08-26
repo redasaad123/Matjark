@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using Core.Models;
 using Infrastructure.InterFace;
 using Infrastructure.InterFace.Services;
@@ -41,6 +41,7 @@ namespace Infrastructure.Services
                GetImages = x.ImageUrl,
                IsDiscounted = x.IsDiscounted,
                Price = x.UnitPrice,
+               OldPrice = x.OldPrice,
                Quantity = x.Quantity,
                Sizes =  x.Sizes.Select(s => s.ToString()).ToList(),
             }).ToList();
@@ -52,11 +53,6 @@ namespace Infrastructure.Services
         {
             if (model == null) 
                 throw new ArgumentNullException("model");
-
-
-
-
-
   
             var product = new Products
             {
