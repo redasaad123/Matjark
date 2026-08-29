@@ -1,4 +1,4 @@
-﻿using Core.Models;
+using Core.Models;
 using Infrastructure.InterFace;
 using Infrastructure.InterFace.Services;
 using Infrastructure.ViewModel;
@@ -32,6 +32,20 @@ namespace Infrastructure.Services
             }).ToList();
             return mapping;
         }
+
+        public async Task<CategoryViewModel?> GetCategoryById(string id)
+        {
+            var cat = await categoryUnitOfWork.Entity.GetById(id);
+            if (cat == null)
+                return null;
+
+            return new CategoryViewModel
+            {
+                Id = cat.Id,
+                CategoryName = cat.Name
+            };
+        }
+
         public async Task<Category> AddCategory(CategoryViewModel model)
         {
             var cat = new Category

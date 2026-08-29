@@ -1,0 +1,205 @@
+@model Infrastructure.ViewModel.AddProductViewModel
+
+@{
+    ViewData["Title"] = "تعديل المنتج - Edit Product";
+}
+
+<div class="container py-4 d-flex justify-content-center">
+    <div class="col-12 col-lg-9 card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius, 14px); background: #fff;">
+        <div class="text-center mb-4">
+            <h2 class="h3 fw-bold" style="font-family: 'El Messiri', serif; color: var(--pine);">تعديل بيانات المنتج</h2>
+            <p class="text-muted small">قم بتعديل بيانات المنتج وحفظ التغييرات</p>
+        </div>
+
+        <form asp-controller="Manage" asp-action="EditProducts" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="form-label fw-semibold">اسم المنتج (Product Name)</label>
+                <input asp-for="Name" class="form-control" placeholder="أدخل اسم المنتج" required />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label asp-for="Cat" class="form-label fw-semibold">القسم (Category)</label>
+                    <select asp-for="Cat" class="form-select" required>
+                        <option value="">-- اختر القسم --</option>
+                        @if (ViewBag.Category != null)
+                        {
+                            foreach (var cat in ViewBag.Category)
+                            {
+                                <option value="@cat.Id" selected="@(cat.Id == Model.Cat ? "selected" : null)">@cat.CategoryName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="Cat" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Quantity" class="form-label fw-semibold">الكمية (Quantity)</label>
+                    <input asp-for="Quantity" type="number" min="0" class="form-control" required />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label fw-semibold">المقاسات المتاحة (Available Sizes)</label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    @if (ViewBag.Sizes != null)
+                    {
+                        foreach (var size in ViewBag.Sizes)
+                        {
+                            bool isChecked = Model.Sizes != null && Model.Sizes.Contains(size);
+                            <input type="checkbox"
+                                   class="btn-check"
+                                   name="Sizes"
+                                   value="@size"
+                                   id="size_@size"
+                                   checked="@(isChecked ? "checked" : null)">
+                            <label class="btn btn-outline-primary" for="size_@size">
+                                @size
+                            </label>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Current Images Display & Deletion -->
+            <div class="form-group mb-4">
+                <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                    <span>الصور الحالية للمنتج (Current Images)</span>
+                    <small class="text-muted">اضغط على زر الحذف (✕) لحذف أي صورة لا تريدها</small>
+                </label>
+
+                <div id="deletedImagesContainer"></div>
+
+                @if (Model.GetImages != null && Model.GetImages.Any())
+                {
+                    <div class="row g-3" id="existingImagesList">
+                        @foreach (var img in Model.GetImages)
+                        {
+                            var imgPath = img.StartsWith("/") || img.StartsWith("http") ? img : "/Images/" + img;
+                            <div class="col-6 col-sm-4 col-md-3 existing-image-item" data-image-name="@img">
+                                <div class="card h-100 border shadow-sm position-relative overflow-hidden" style="border-radius: 10px;">
+                                    <div style="height: 120px; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center overflow-hidden">
+                                        <img src="@imgPath" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </div>
+                                    <input type="hidden" name="GetImages" value="@img" class="kept-image-input" />
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex align-items-center justify-content-center btn-delete-existing-img" 
+                                            style="width: 26px; height: 26px; line-height: 1;" 
+                                            title="حذف هذه الصورة">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted small mb-2 fst-italic">لا توجد صور محفوظة لهذا المنتج حالياً.</p>
+                }
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label fw-semibold">إضافة صور جديدة (Upload New Photos)</label>
+                <div id="imagesContainer">
+                    <div class="image-input mb-2">
+                        <div class="d-flex gap-2">
+                            <input type="file" name="Images" accept="image/*" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addImage" class="btn btn-outline-secondary btn-sm mt-1">
+                    + إضافة صورة أخرى
+                </button>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label asp-for="OldPrice" class="form-label fw-semibold">السعر الأساسي (Price)</label>
+                    <input asp-for="OldPrice" class="form-control" placeholder="0.00" required />
+                    <span asp-validation-for="OldPrice" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 d-flex flex-column justify-content-end">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" asp-for="IsDiscounted" data-bs-toggle="collapse" data-bs-target="#collapseOffer" aria-expanded="@(Model.IsDiscounted ? "true" : "false")" aria-controls="collapseOffer" id="isDiscountCheck" />
+                        <label class="form-check-label fw-semibold" for="isDiscountCheck">تفعيل خصم / عرض خاص (Offer)</label>
+                    </div>
+                    <div class="collapse @(Model.IsDiscounted ? "show" : "")" id="collapseOffer">
+                        <div class="input-group">
+                            <span class="input-group-text">نسبة الخصم</span>
+                            <input asp-for="DiscountPercentage" class="form-control" placeholder="مثال: 0.15 لخصم 15%" />
+                        </div>
+                        <span asp-validation-for="DiscountPercentage" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Description" class="form-label fw-semibold">الوصف (Description)</label>
+                <textarea class="form-control" asp-for="Description" rows="4" placeholder="أدخل تفاصيل ومواصفات المنتج..."></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mt-4">
+                <button class="btn btn-primary btn-lg w-100" type="submit" style="background-color: var(--pine);color: #fff; border-color: var(--pine); border-radius: 8px; font-weight: 600;">
+                    حفظ التعديلات (Save Changes)
+                </button>
+                <a asp-controller="Manage" asp-action="Index" class="btn btn-outline-secondary w-100" style="border-radius: 8px;">
+                    إلغاء والعودة لقائمة المنتجات (Cancel)
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Handle deleting existing images
+        document.addEventListener("click", function (e) {
+            const deleteBtn = e.target.closest(".btn-delete-existing-img");
+            if (deleteBtn) {
+                const item = deleteBtn.closest(".existing-image-item");
+                const imageName = item.getAttribute("data-image-name");
+
+                // Add to deleted images container so it gets deleted from server disk
+                const deletedContainer = document.getElementById("deletedImagesContainer");
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "DeletedImages";
+                hiddenInput.value = imageName;
+                deletedContainer.appendChild(hiddenInput);
+
+                // Remove item from UI
+                item.remove();
+            }
+        });
+
+        // Add additional image upload input
+        document.getElementById("addImage").addEventListener("click", function () {
+            const container = document.getElementById("imagesContainer");
+            const div = document.createElement("div");
+            div.classList.add("image-input", "mb-2");
+            div.innerHTML = `
+                <div class="d-flex gap-2">
+                    <input type="file" name="Images" accept="image/*" class="form-control" />
+                    <button type="button" class="btn btn-danger remove-image">X</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        // Remove new image upload input
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-image")) {
+                const imageInput = e.target.closest(".image-input");
+                imageInput.remove();
+            }
+        });
+    </script>
+}

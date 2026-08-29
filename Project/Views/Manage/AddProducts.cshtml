@@ -1,200 +1,141 @@
-﻿@model Infrastructure.ViewModel.AddProductViewModel;
+@model Infrastructure.ViewModel.AddProductViewModel
 
 @{
-    ViewData["Title"] = "Add Book";
-    
-
+    ViewData["Title"] = "إضافة منتج جديد - Add Product";
 }
-<div class="container-sm d-flex justify-content-center mt-4 ">
-    <div class="col-10 Addbookform">
-        <h1 class="text-center">Add New Product</h1>
-        <div>
-            <form asp-controller="Manage" asp-action="AddProducts" method="post" enctype="multipart/form-data">
 
-                <div class="form-group  mb-3 ">
-                    <label asp-for="Name" class="control-label ms-1">Name </label>
-                    <input asp-for="Name" class="form-control" aria-required="true" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+<div class="container py-4 d-flex justify-content-center">
+    <div class="col-12 col-lg-9 card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius, 14px); background: #fff; ">
+        <div class="text-center mb-4">
+            <h2 class="h3 fw-bold" style="font-family: 'El Messiri', serif; color: var(--pine);">إضافة منتج جديد</h2>
+            <p class="text-muted small">أدخل تفاصيل وبيانات المنتج الجديد لإضافته إلى المتجر</p>
+        </div>
 
-                <div class="form-group d-md-flex">
+        <form asp-controller="Manage" asp-action="AddProducts" method="post" enctype="multipart/form-data">
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="form-label fw-semibold">اسم المنتج (Product Name)</label>
+                <input asp-for="Name" class="form-control form-control-lg" placeholder="أدخل اسم المنتج" required />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
 
-                    <div class="form-group col-md-6 pe-md-2 mb-3">
-                        <label asp-for="Cat" class="control-label ms-1">
-                            Category
-                        </label>
-
-                        <select asp-for="Cat" class="form-control">
-                            <option value="">-- Choose Category --</option>
-                            @{
-                                foreach (var cat in ViewBag.Category)
-                                {
-                                    <option value="@cat.Id">@cat.CategoryName</option>
-                                }
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label asp-for="Cat" class="form-label fw-semibold">القسم (Category)</label>
+                    <select asp-for="Cat" class="form-select form-select-lg" required>
+                        <option value="">-- اختر القسم --</option>
+                        @if (ViewBag.Category != null)
+                        {
+                            foreach (var cat in ViewBag.Category)
+                            {
+                                <option value="@cat.Id">@cat.CategoryName</option>
                             }
-                        </select>
-
-                        <span asp-validation-for="Cat" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group  col-md-6 ps-md-2 mb-3">
-                        <label asp-for="Quantity" class="control-label ms-1">Quantity </label>
-                        <input asp-for="Quantity" class="form-control " aria-required="true" />
-                        <span asp-validation-for="Quantity" class="text-danger"></span>
-                    </div>
-
-
-
+                        }
+                    </select>
+                    <span asp-validation-for="Cat" class="text-danger small"></span>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="control-label ms-1">Available Sizes</label>
+                <div class="col-md-6">
+                    <label asp-for="Quantity" class="form-label fw-semibold">الكمية (Quantity)</label>
+                    <input asp-for="Quantity" type="number" min="0" class="form-control form-control-lg" placeholder="0" required />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+            </div>
 
-                    <div class="d-flex flex-wrap gap-2 mt-2">
-
-                        @foreach (var size in ViewBag.Sizes)
+            <div class="form-group mb-4">
+                <label class="form-label fw-semibold">المقاسات المتاحة (Available Sizes)</label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    @if (ViewBag.Sizes != null)
+                    {
+                        foreach (var size in ViewBag.Sizes)
                         {
                             <input type="checkbox"
                                    class="btn-check"
                                    name="Sizes"
                                    value="@size"
                                    id="size_@size">
-
-                            <label class="btn btn-outline-primary"
-                                   for="size_@size">
+                            <label class="btn btn-outline-primary" for="size_@size">
                                 @size
                             </label>
                         }
-                    </div>
+                    }
                 </div>
+            </div>
 
-                @* <div class="d-md-flex">
-                    <div class="form-group  col-md-6 pe-md-2 mb-3">
-                        <label asp-for="DiscountPercentage" class="control-label ms-1"> Number Of Page</label>
-                        <input asp-for="DiscountPercentage" class="form-control" aria-required="true" />
-                        <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group  col-md-6 ps-md-2  mb-3">
-                        <label asp-for="Gender" class="control-label ms-1"> Release Years</label>
-                        <input asp-for="Gender" class="form-control" aria-required="true" />
-                        <span asp-validation-for="Gender" class="text-danger"></span>
-                    </div>
-
-                </div> *@
-
-
-                <div class="form-group mb-3">
-
-                    <label class="control-label">Photo</label>
-
-                    <div id="imagesContainer">
-                        <div class="image-input mb-2">
-                            <div class="d-flex gap-2">
-                                <input type="file"
-                                       name="Images"
-                                       accept="image/*"
-                                       class="form-control" />
-                            </div>
+            <div class="form-group mb-4">
+                <label class="form-label fw-semibold">صور المنتج (Photos)</label>
+                <div id="imagesContainer">
+                    <div class="image-input mb-2">
+                        <div class="d-flex gap-2">
+                            <input type="file" name="Images" accept="image/*" class="form-control" />
                         </div>
                     </div>
+                </div>
+                <button type="button" id="addImage" class="btn btn-outline-secondary btn-sm mt-1">
+                    + إضافة صورة أخرى
+                </button>
+            </div>
 
-                    <button type="button"
-                            id="addImage"
-                            class="btn btn-secondary mt-2">
-                        + Add Image
-                    </button>
-
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label asp-for="OldPrice" class="form-label fw-semibold">السعر الأساسي (Price)</label>
+                    <input asp-for="OldPrice" class="form-control form-control-lg" placeholder="0.00" required />
+                    <span asp-validation-for="OldPrice" class="text-danger small"></span>
                 </div>
 
-                @* <div class="form-group mb-3">
-                    <label asp-for="Price" class="control-label ">PDF</label>
-                    <input asp-for="Price" type="file" class="form-control" />
-                    <span asp-validation-for="Price" class="text-danger"></span>
-                </div> *@
-
-
-
-                <div class="d-md-flex">
-                    <div class="form-group  col-md-6 pe-md-2 mb-3">
-                        <label asp-for="OldPrice" class="control-label ms-1">Price</label>
-                        <input asp-for="OldPrice" class="form-control" aria-required="true" />
-                        <span asp-validation-for="OldPrice" class="text-danger"></span>
+                <div class="col-md-6 d-flex flex-column justify-content-end">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" asp-for="IsDiscounted" data-bs-toggle="collapse" data-bs-target="#collapseOffer" aria-expanded="false" aria-controls="collapseOffer" id="isDiscountCheck" />
+                        <label class="form-check-label fw-semibold" for="isDiscountCheck">تفعيل خصم / عرض خاص (Offer)</label>
                     </div>
-
-                    <div class="d-md-flex col-md-6 ps-md-2 mt-4 mb-3">
-                        <div class="form-check mb-3 me-3">
-                            <input type="checkbox" class="form-check-input" asp-for="IsDiscounted" data-bs-toggle="collapse" data-bs-target="#collapseOffer" aria-expanded="false" aria-controls="collapseOffer" />
-                            <label class="form-check-label" asp-for="IsDiscounted">Offer</label>
+                    <div class="collapse" id="collapseOffer">
+                        <div class="input-group">
+                            <span class="input-group-text">نسبة الخصم</span>
+                            <input asp-for="DiscountPercentage" class="form-control" placeholder="مثال: 0.15 لخصم 15%" />
                         </div>
-
-
-                        <div class="collapse  " id="collapseOffer">
-                            <div class="card card-body pricecard">
-                                <div class="form-group  ">
-                                    <label asp-for="DiscountPercentage" class="control-label ms-1 ">Discount</label>
-                                    <input asp-for="DiscountPercentage" class="form-control " />
-                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
+                        <span asp-validation-for="DiscountPercentage" class="text-danger small"></span>
                     </div>
-
                 </div>
-                <div class="col-md-12  ">
-                    <label asp-for="Description" class="control-label ">Description</label>
-                    <textarea class="form-control " asp-for="Description" name="Description" rows="6"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+            </div>
 
-                <button class="btn btn-primary w-100 mt-4 " type="submit">Add Book</button>
-            </form>
-        </div>
+            <div class="form-group mb-4">
+                <label asp-for="Description" class="form-label fw-semibold">الوصف (Description)</label>
+                <textarea class="form-control" asp-for="Description" rows="4" placeholder="أدخل تفاصيل ومواصفات المنتج..."></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
 
-        <div class="mt-2">
-            <a asp-controller="Home" asp-action="Index" class="">Back to Home</a>
-        </div>
+            <div class="d-flex flex-column gap-2 mt-4">
+                <button class="btn btn-primary btn-lg w-100" type="submit" style="background-color: var(--pine); border-color: var(--pine); border-radius: 8px; font-weight: 600;">
+                    + إضافة المنتج (Add Product)
+                </button>
+                <a asp-controller="Manage" asp-action="Index" class="btn btn-outline-secondary w-100" style="border-radius: 8px;">
+                    العودة لقائمة المنتجات (Back to Products)
+                </a>
+            </div>
+        </form>
     </div>
-
 </div>
 
-<script>
-    document.getElementById("addImage").addEventListener("click", function () {
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById("addImage").addEventListener("click", function () {
+            const container = document.getElementById("imagesContainer");
+            const div = document.createElement("div");
+            div.classList.add("image-input", "mb-2");
+            div.innerHTML = `
+                <div class="d-flex gap-2">
+                    <input type="file" name="Images" accept="image/*" class="form-control" />
+                    <button type="button" class="btn btn-danger remove-image">X</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
 
-        const container = document.getElementById("imagesContainer");
-
-        const div = document.createElement("div");
-
-        div.classList.add("image-input", "mb-2");
-
-        div.innerHTML = `
-            <div class="d-flex gap-2">
-
-                <input type="file"
-                       name="Images"
-                       accept="image/*"
-                       class="form-control" />
-
-                <button type="button"
-                        class="btn btn-danger remove-image">
-                    X
-                </button>
-
-            </div>
-        `;
-
-        container.appendChild(div);
-    });
-
-
-    document.addEventListener("click", function (e) {
-
-        if (e.target.classList.contains("remove-image")) {
-
-            const imageInput = e.target.closest(".image-input");
-
-            imageInput.remove();
-        }
-
-    });
-</script>
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-image")) {
+                const imageInput = e.target.closest(".image-input");
+                imageInput.remove();
+            }
+        });
+    </script>
+}

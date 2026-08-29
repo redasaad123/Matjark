@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,17 +9,14 @@ namespace Core.Services
     public class ImageStore
     {
         private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment hosting;
-        private List<string> _images;
 
-        public ImageStore( Microsoft.AspNetCore.Hosting.IHostingEnvironment hosting)
+        public ImageStore(Microsoft.AspNetCore.Hosting.IHostingEnvironment hosting)
         {
             this.hosting = hosting;
-            _images = new List<string>();
         }
 
         public List<string> StoreImage(List<IFormFile> images)
         {
-
             string uploads = Path.Combine(hosting.WebRootPath, "Images");
 
             if (!Directory.Exists(uploads))
@@ -27,24 +24,58 @@ namespace Core.Services
                 Directory.CreateDirectory(uploads);
             }
 
-            foreach (var img in images)
+            var resultImages = new List<string>();
+
+            if (images != null)
             {
-                string fileName = Path.GetFileName(img.FileName);
-
-                string fullPath = Path.Combine(uploads, fileName);
-
-                using (var stream = new FileStream(fullPath, FileMode.Create))
+                foreach (var img in images)
                 {
-                    img.CopyTo(stream);
+                    if (img == null || img.Length == 0) continue;
+
+                    string ext = Path.GetExtension(img.FileName);
+                    string fileName = Guid.NewGuid().ToString() + ext;
+                    string fullPath = Path.Combine(uploads, fileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        img.CopyTo(stream);
+                    }
+
+                    resultImages.Add(fileName);
                 }
-
-                _images.Add(fileName);
             }
-            return _images;
 
-
+            return resultImages;
         }
 
-        
+        public void DeleteImage(string? imageName)
+        {
+            if (string.IsNullOrWhiteSpace(imageName)) return;
+
+            try
+            {
+                string cleanFileName = Path.GetFileName(imageName);
+                string fullPath = Path.Combine(hosting.WebRootPath, "Images", cleanFileName);
+
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+            }
+            catch
+            {
+                // Ignore file in use or permission errors
+            }
+        }
+
+        public void DeleteImages(IEnumerable<string>? images)
+        {
+            if (images == null) return;
+
+            foreach (var img in images)
+            {
+                DeleteImage(img);
+            }
+        }
     }
 }

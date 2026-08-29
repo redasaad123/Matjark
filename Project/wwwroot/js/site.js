@@ -24,6 +24,21 @@
     let selectedSizes = {};
     let cart = [];
 
+    try {
+        const saved = localStorage.getItem("matgark_cart");
+        if (saved) {
+            cart = JSON.parse(saved);
+        }
+    } catch (e) {
+        cart = [];
+    }
+
+    function saveCart() {
+        try {
+            localStorage.setItem("matgark_cart", JSON.stringify(cart));
+        } catch (e) {}
+    }
+
     const fmt = n =>
         Number(n).toLocaleString("ar-EG") + " ج.م";
 
@@ -109,9 +124,9 @@
         return {
 
             id:
-                p.id !== undefined
-                    ? p.id
-                    : (p.Id ?? 0),
+                p.id !== undefined && p.id !== null
+                    ? String(p.id)
+                    : (p.Id !== undefined && p.Id !== null ? String(p.Id) : ""),
 
             name:
                 p.name ||
@@ -369,37 +384,41 @@
 
             card.innerHTML = `
 
-                <div
-                    class="card-media ${catClass[p.cat] ||
-                "cat-man"
-                }"
-                >
+                <a href="/Home/Details/${p.id}" class="card-media-link" style="display: block; text-decoration: none; color: inherit;">
+                    <div
+                        class="card-media ${catClass[p.cat] ||
+                    "cat-man"
+                    }"
+                    >
 
-                    ${p.isDiscounted
-                    ? `
-                                <div class="tag-fold">
-                                    <span>خصم</span>
-                                </div>
-                            `
-                    : ""
-                }
-                    ${renderProductMedia(p)}
+                        ${p.isDiscounted
+                        ? `
+                                    <div class="tag-fold">
+                                        <span>خصم</span>
+                                    </div>
+                                `
+                        : ""
+                    }
+                        ${renderProductMedia(p)}
 
-                </div>
+                    </div>
+                </a>
 
 
                 <div class="card-body">
 
                     <span class="card-cat">
                         ${catLabel[p.cat] ||
-                p.cat
-                }
+                    p.cat
+                    }
                     </span>
 
 
-                    <h3 class="card-name">
-                        ${p.name}
-                    </h3>
+                    <a href="/Home/Details/${p.id}" class="card-name-link" style="text-decoration: none; color: inherit;">
+                        <h3 class="card-name">
+                            ${p.name}
+                        </h3>
+                    </a>
 
 
                     <div class="price-row">
@@ -409,13 +428,13 @@
                         </span>
 
                         ${(p.isDiscounted)
-                    ? `
+                        ? `
                                     <span class="price-old">
                                         ${fmt(p.old)}
                                     </span>
                                 `
-                    : ""
-                }
+                        : ""
+                    }
 
                     </div>
 
@@ -430,10 +449,10 @@
                             <button
                                 type="button"
                                 class="size-chip ${s ===
-                        selectedSizes[p.id]
-                        ? "selected"
-                        : ""
-                    }"
+                            selectedSizes[p.id]
+                            ? "selected"
+                            : ""
+                        }"
                                 data-size="${s}"
                             >
                                 ${s}
@@ -473,104 +492,107 @@
     ========================================================= */
 
     function findProduct(id) {
-
         return products.find(
-            p => p.id === id
+            p => String(p.id) === String(id)
         );
     }
 
 
-    function addToCart(pid, size) {
+    function addToCart(pid, size, qty, productMeta) {
+        pid = String(pid);
+        const p = findProduct(pid) || productMeta;
+        qty = Number(qty) || 1;
+
+        if (!size && p && p.sizes && p.sizes.length > 0) {
+            size = p.sizes[0];
+        }
+        size = size || "مقاس واحد";
 
         const existing =
             cart.find(
                 c =>
-                    c.id === pid &&
+                    String(c.id) === pid &&
                     c.size === size
             );
 
-
         if (existing) {
-
-            existing.qty++;
-
+            existing.qty += qty;
         } else {
+            const images = p ? (p.images || p.GetImages || []) : [];
+            const firstImg = images.length > 0 ? (typeof images[0] === 'string' ? images[0] : (images[0].imageName || "")) : "";
 
             cart.push({
                 id: pid,
                 size: size,
-                qty: 1
+                qty: qty,
+                name: p ? (p.name || p.Name || "") : "",
+                price: p ? Number(p.price !== undefined ? p.price : (p.Price ?? 0)) : 0,
+                image: firstImg,
+                cat: p ? (p.cat || p.Cat || "man") : "man",
+                icon: p ? (p.icon || p.Icon || "ic-tshirt") : "ic-tshirt"
             });
         }
 
-
+        saveCart();
         renderCart();
 
-
-        const p =
-            findProduct(pid);
-
-
         if (p) {
-
             showToast(
-                `تمت إضافة "${p.name}" (${size}) للسلة`
+                `تمت إضافة "${p.name || p.Name || 'المنتج'}" (${size}) للسلة`
             );
         }
-
 
         openCart();
     }
 
+    window.addToCart = addToCart;
+    window.openCart = openCart;
+    window.renderCart = renderCart;
+
 
     function changeQty(pid, size, delta) {
-
+        pid = String(pid);
         const item =
             cart.find(
                 c =>
-                    c.id === pid &&
+                    String(c.id) === pid &&
                     c.size === size
             );
-
 
         if (!item)
             return;
 
-
         item.qty += delta;
 
-
         if (item.qty <= 0) {
-
             cart =
                 cart.filter(
-                    c => c !== item
+                    c => !(String(c.id) === pid && c.size === size)
                 );
         }
 
-
+        saveCart();
         renderCart();
     }
 
 
     function removeItem(pid, size) {
-
+        pid = String(pid);
         cart =
             cart.filter(
                 c =>
                     !(
-                        c.id === pid &&
+                        String(c.id) === pid &&
                         c.size === size
                     )
             );
 
-
+        saveCart();
         renderCart();
     }
 
 
     function renderCart() {
-
         const cartItemsWrap =
             document.getElementById(
                 "cartItems"
@@ -586,10 +608,8 @@
                 "cartFoot"
             );
 
-
         if (!cartItemsWrap)
             return;
-
 
         const totalQty =
             cart.reduce(
@@ -597,115 +617,88 @@
                 0
             );
 
-
         if (cartBadge) {
-
             cartBadge.textContent =
                 totalQty;
         }
 
-
         if (cart.length === 0) {
-
             cartItemsWrap.innerHTML = `
-
                 <div class="cart-empty">
-
                     <svg>
                         <use
                             href="#ic-empty-cart"
                         ></use>
                     </svg>
-
                     <p>
                         السلة لسه فاضية…
                         يلا نملاها!
                     </p>
-
                 </div>
             `;
 
-
             if (cartFoot) {
-
                 cartFoot.style.display =
                     "none";
             }
 
-
             return;
         }
 
-
         if (cartFoot) {
-
             cartFoot.style.display =
                 "block";
         }
 
-
         cartItemsWrap.innerHTML =
             cart.map(c => {
-
                 const p =
                     findProduct(c.id);
 
-
-                if (!p)
-                    return "";
-
+                const name = p ? p.name : (c.name || "منتج");
+                const price = p ? p.price : (c.price || 0);
+                const cat = p ? p.cat : (c.cat || "man");
+                const images = p ? p.images : (c.image ? [c.image] : []);
+                const icon = p ? p.icon : (c.icon || "ic-tshirt");
 
                 const firstImage =
-                    p.images &&
-                        p.images.length > 0
-
+                    images &&
+                    images.length > 0
                         ? `
                             <img
-                                src="/Images/${p.images[0]}"
-                                alt="${p.name}"
+                                src="/Images/${images[0]}"
+                                alt="${name}"
                             >
                         `
-
                         : `
                             <svg>
                                 <use
-                                    href="#${p.icon}"
+                                    href="#${icon}"
                                 ></use>
                             </svg>
                         `;
 
-
                 return `
-
                     <div class="cart-item">
-
                         <div
-                            class="thumb ${catClass[p.cat] ||
-                    "cat-men"
-                    }"
+                            class="thumb ${catClass[cat] ||
+                            "cat-men"
+                            }"
                         >
-
                             ${firstImage}
-
                         </div>
 
-
                         <div class="ci-info">
-
                             <span class="ci-name">
-                                ${p.name}
+                                ${name}
                             </span>
-
 
                             <span class="ci-meta">
                                 المقاس: ${c.size}
                             </span>
 
-
                             <div class="ci-bottom">
-
                                 <div class="qty-ctrl">
-
                                     <button
                                         type="button"
                                         data-act="minus"
@@ -715,11 +708,9 @@
                                         −
                                     </button>
 
-
                                     <span>
                                         ${c.qty}
                                     </span>
-
 
                                     <button
                                         type="button"
@@ -729,19 +720,15 @@
                                     >
                                         +
                                     </button>
-
                                 </div>
-
 
                                 <span class="ci-price">
                                     ${fmt(
-                        p.price *
-                        c.qty
-                    )}
+                                        price *
+                                        c.qty
+                                    )}
                                 </span>
-
                             </div>
-
 
                             <button
                                 type="button"
@@ -752,32 +739,22 @@
                             >
                                 إزالة
                             </button>
-
                         </div>
-
                     </div>
                 `;
-
             }).join("");
-
 
         const subtotal =
             cart.reduce(
                 (s, c) => {
-
                     const p =
                         findProduct(c.id);
+                    const price = p ? p.price : (c.price || 0);
 
-                    return p
-                        ? s +
-                        p.price *
-                        c.qty
-                        : s;
-
+                    return s + (price * c.qty);
                 },
                 0
             );
-
 
         const sumSubtotal =
             document.getElementById(
@@ -789,16 +766,12 @@
                 "sumTotal"
             );
 
-
         if (sumSubtotal) {
-
             sumSubtotal.textContent =
                 fmt(subtotal);
         }
 
-
         if (sumTotal) {
-
             sumTotal.textContent =
                 fmt(subtotal);
         }
@@ -1000,7 +973,7 @@
 
 
                             const pid =
-                                Number(
+                                String(
                                     row.dataset.pid
                                 );
 
@@ -1039,14 +1012,15 @@
                         if (addBtn) {
 
                             const pid =
-                                Number(
+                                String(
                                     addBtn.dataset.pid
                                 );
 
+                            const currentSelectedSize = selectedSizes[pid] || (findProduct(pid)?.sizes?.[0]) || "مقاس واحد";
 
                             addToCart(
                                 pid,
-                                selectedSizes[pid]
+                                currentSelectedSize
                             );
                         }
                     }
@@ -1251,7 +1225,7 @@
 
 
                         const id =
-                            Number(
+                            String(
                                 btn.dataset.id
                             );
 
@@ -1417,6 +1391,7 @@
 
                         cart = [];
 
+                        saveCart();
 
                         renderCart();
 

@@ -14,5 +14,6 @@ namespace Infrastructure.ViewModel
 
         public List<Sizes>? Sizes { get; set; } = new();
 
+        public List<string>? DeletedImages { get; set; } = new();
     }
 }

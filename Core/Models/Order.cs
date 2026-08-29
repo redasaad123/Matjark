@@ -11,5 +11,9 @@ namespace Core.Models
         public string Id { get; set; }
 
         public List<OrderLine> OrderLines { get; set; }
+
+        public Customer Customer { get; set; }
+
+        public decimal TotalPrice { get; set; }
     }
 }

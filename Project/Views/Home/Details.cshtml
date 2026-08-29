@@ -1,0 +1,356 @@
+@model Infrastructure.ViewModel.GetProductViewModel
+
+@{
+    ViewData["Title"] = Model.Name + " - تفاصيل المنتج";
+    var relatedProducts = ViewBag.RelatedProducts as List<Infrastructure.ViewModel.GetProductViewModel> ?? new List<Infrastructure.ViewModel.GetProductViewModel>();
+    var images = Model.GetImages?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? new List<string>();
+    var firstImage = images.FirstOrDefault() ?? "";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0 small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-fragment="shop" class="text-decoration-none text-muted">@Model.Cat</a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <!-- Main Product Card -->
+    <div class="card border-0 shadow-sm p-4 p-lg-5 mb-5" style="border-radius: var(--radius, 16px); background: #ffffff;">
+        <div class="row g-4 g-lg-5 align-items-start">
+            
+            <!-- Gallery Section -->
+            <div class="col-12 col-lg-6">
+                <div class="product-gallery-wrapper position-relative">
+                    @if (Model.IsDiscounted)
+                    {
+                        <div class="badge-discount-float">
+                            <span>خصم @(Model.DiscountPercentage.HasValue ? $"{(int)(Model.DiscountPercentage.Value * 100)}%" : "خاص")</span>
+                        </div>
+                    }
+
+                    <!-- Main Image Display -->
+                    <div class="main-image-box border rounded-4 overflow-hidden d-flex align-items-center justify-content-center" style="background: #fbf9f4; min-height: 380px; max-height: 480px;">
+                        @if (!string.IsNullOrEmpty(firstImage))
+                        {
+                            var imgUrl = firstImage.StartsWith("/") || firstImage.StartsWith("http") ? firstImage : "/Images/" + firstImage;
+                            <img id="mainProductImage" src="@imgUrl" alt="@Model.Name" class="img-fluid w-100 h-100" style="object-fit: contain; max-height: 450px; transition: transform 0.3s ease;" />
+                        }
+                        else
+                        {
+                            <svg class="text-muted" style="width: 120px; height: 120px; color: var(--sage);"><use href="#ic-tshirt"></use></svg>
+                        }
+                    </div>
+
+                    <!-- Thumbnails Strip -->
+                    @if (images.Count > 1)
+                    {
+                        <div class="d-flex gap-2 mt-3 overflow-auto pb-2 thumbnails-strip" style="scrollbar-width: thin;">
+                            @for (int i = 0; i < images.Count; i++)
+                            {
+                                var thumbUrl = images[i].StartsWith("/") || images[i].StartsWith("http") ? images[i] : "/Images/" + images[i];
+                                <div class="thumb-box rounded-3 border overflow-hidden cursor-pointer @(i == 0 ? "active-thumb" : "")" 
+                                     style="width: 76px; height: 76px; flex-shrink: 0; cursor: pointer; transition: all 0.2s ease;"
+                                     onclick="switchMainImage('@thumbUrl', this)">
+                                    <img src="@thumbUrl" alt="@Model.Name thumbnail" class="w-100 h-100" style="object-fit: cover;" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Product Info Section -->
+            <div class="col-12 col-lg-6 d-flex flex-column">
+                <div class="mb-2">
+                    <span class="badge px-3 py-2 text-uppercase fw-semibold" style="background: #eef3ee; color: var(--pine); border-radius: 20px; font-size: 0.82rem;">
+                        @(Model.Cat ?? "ملابس")
+                    </span>
+                    @if (!string.IsNullOrEmpty(Model.Gender))
+                    {
+                        <span class="badge bg-light text-muted border ms-1 px-3 py-2" style="border-radius: 20px; font-size: 0.82rem;">
+                            @Model.Gender
+                        </span>
+                    }
+                </div>
+
+                <h1 class="h2 fw-bold mt-2 mb-3" style="font-family: 'El Messiri', serif; color: var(--pine);">
+                    @Model.Name
+                </h1>
+
+                <!-- Price Row -->
+                <div class="d-flex align-items-baseline gap-3 mb-3">
+                    <span class="fs-2 fw-bold" style="color: var(--pine); font-family: 'Cairo', sans-serif;">
+                        @((Model.Price ?? 0).ToString("N0")) ج.م
+                    </span>
+                    @if (Model.IsDiscounted && Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
+                    {
+                        <span class="text-muted text-decoration-line-through fs-5">
+                            @Model.OldPrice.Value.ToString("N0") ج.م
+                        </span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-2 py-1">
+                            وفر @((Model.OldPrice.Value - (Model.Price ?? 0)).ToString("N0")) ج.م
+                        </span>
+                    }
+                </div>
+
+                <!-- Stock availability -->
+                <div class="mb-4">
+                    @if (Model.Quantity > 0)
+                    {
+                        <span class="text-success small fw-semibold d-inline-flex align-items-center gap-1">
+                            <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px;"></span>
+                            متوفر في المخزون (@Model.Quantity قطعة متاحة)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-danger small fw-semibold d-inline-flex align-items-center gap-1">
+                            <span class="d-inline-block rounded-circle bg-danger" style="width: 8px; height: 8px;"></span>
+                            نفذت الكمية حالياً
+                        </span>
+                    }
+                </div>
+
+                <hr class="my-2 text-muted opacity-25" />
+
+                <!-- Sizes Selection -->
+                @if (Model.Sizes != null && Model.Sizes.Any())
+                {
+                    <div class="my-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">اختر المقاس:</label>
+                        <div class="d-flex flex-wrap gap-2" id="detailSizesContainer">
+                            @for (int i = 0; i < Model.Sizes.Count; i++)
+                            {
+                                var s = Model.Sizes[i];
+                                <button type="button" 
+                                        class="btn btn-outline-secondary size-btn-detail px-3 py-2 @(i == 0 ? "active" : "")" 
+                                        data-size="@s"
+                                        style="border-radius: 8px; font-weight: 600; min-width: 48px;">
+                                    @s
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Quantity & Add to Cart -->
+                <div class="my-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase mb-2">الكمية:</label>
+                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                        <div class="input-group" style="width: 130px;">
+                            <button class="btn btn-outline-secondary px-3" type="button" onclick="adjustQty(-1)">−</button>
+                            <input type="number" id="detailQty" class="form-control text-center fw-bold" value="1" min="1" max="@(Model.Quantity > 0 ? Model.Quantity : 1)" readonly />
+                            <button class="btn btn-outline-secondary px-3" type="button" onclick="adjustQty(1)">+</button>
+                        </div>
+
+                        <button type="button" id="btnAddToCartDetail" class="btn btn-primary btn-lg flex-grow-1 d-flex align-items-center justify-content-center gap-2"
+                                style="background-color: var(--pine); border-color: var(--pine); border-radius: 10px; font-weight: 700; padding: 12px 24px;">
+                            <svg width="20" height="20"><use href="#ic-cart"></use></svg>
+                            <span>أضف إلى السلة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Features / Trust badges -->
+                <div class="p-3 rounded-3 mt-auto" style="background: #fdfbf7; border: 1px dashed var(--line, #e2d9c5);">
+                    <div class="row g-2 text-center text-md-start small text-muted">
+                        <div class="col-12 col-sm-4 d-flex align-items-center gap-2">
+                            <span>🚚</span>
+                            <span>شحن مجاني فوق 1500 ج.م</span>
+                        </div>
+                        <div class="col-12 col-sm-4 d-flex align-items-center gap-2">
+                            <span>↩︎</span>
+                            <span>إرجاع مجاني خلال 14 يوم</span>
+                        </div>
+                        <div class="col-12 col-sm-4 d-flex align-items-center gap-2">
+                            <span>💳</span>
+                            <span>الدفع عند الاستلام متاح</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="mt-4 pt-3 border-top">
+                        <h4 class="h6 fw-bold text-dark mb-2">وصف ومواصفات المنتج:</h4>
+                        <p class="text-secondary leading-relaxed mb-0" style="white-space: pre-line; line-height: 1.8;">
+                            @Model.Description
+                        </p>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products Section -->
+    @if (relatedProducts != null && relatedProducts.Any())
+    {
+        <section class="related-products-section my-5 pt-3">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <p class="eyebrow mb-1">منتجات مقترحة</p>
+                    <h2 class="h3 fw-bold" style="font-family: 'El Messiri', serif; color: var(--pine);">منتجات قد تعجبك من نفس القسم</h2>
+                </div>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="shop" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;">
+                    مشاهدة الكل
+                </a>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var p in relatedProducts)
+                {
+                    var pImages = p.GetImages?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? new List<string>();
+                    var pFirstImage = pImages.FirstOrDefault() ?? "";
+                    var pUrl = pFirstImage.StartsWith("/") || pFirstImage.StartsWith("http") ? pFirstImage : "/Images/" + pFirstImage;
+                    var pPrice = p.Price ?? 0;
+                    var pOldPrice = p.OldPrice;
+
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm overflow-hidden position-relative product-card-hover" style="border-radius: var(--radius, 14px); background: #ffffff;">
+                            
+                            @if (p.IsDiscounted)
+                            {
+                                <div class="tag-fold position-absolute top-0 start-0 m-2" style="z-index: 2;">
+                                    <span>خصم</span>
+                                </div>
+                            }
+
+                            <!-- Card Media & Link -->
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none">
+                                <div style="height: 220px; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center overflow-hidden">
+                                    @if (!string.IsNullOrEmpty(pFirstImage))
+                                    {
+                                        <img src="@pUrl" alt="@p.Name" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" class="card-img-zoom" />
+                                    }
+                                    else
+                                    {
+                                        <svg style="width: 60px; height: 60px; color: var(--sage);"><use href="#ic-tshirt"></use></svg>
+                                    }
+                                </div>
+                            </a>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-3 d-flex flex-column">
+                                <span class="text-muted small mb-1">@(p.Cat ?? "ملابس")</span>
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark">
+                                    <h3 class="h6 fw-bold text-truncate mb-2" title="@p.Name" style="font-family: 'Cairo', sans-serif;">
+                                        @p.Name
+                                    </h3>
+                                </a>
+
+                                <div class="d-flex align-items-baseline gap-2 mb-3 mt-auto">
+                                    <span class="fw-bold fs-6" style="color: var(--pine);">@pPrice.ToString("N0") ج.م</span>
+                                    @if (p.IsDiscounted && pOldPrice.HasValue && pOldPrice > pPrice)
+                                    {
+                                        <span class="text-muted small text-decoration-line-through">@pOldPrice.Value.ToString("N0") ج.م</span>
+                                    }
+                                </div>
+
+                                <button type="button" class="btn btn-outline-primary btn-sm w-100 btn-add-related-to-cart d-flex align-items-center justify-content-center gap-1"
+                                        style="border-radius: 8px; font-weight: 600;"
+                                        data-pid="@p.Id"
+                                        data-name="@p.Name"
+                                        data-price="@pPrice"
+                                        data-image="@pFirstImage"
+                                        data-cat="@(p.Cat ?? "man")"
+                                        data-size="@(p.Sizes?.FirstOrDefault() ?? "مقاس واحد")">
+                                    <svg width="14" height="14"><use href="#ic-plus"></use></svg>
+                                    <span>أضف للسلة</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Switch Main Image in Gallery
+        function switchMainImage(url, thumbElement) {
+            const mainImg = document.getElementById("mainProductImage");
+            if (mainImg) {
+                mainImg.src = url;
+            }
+            document.querySelectorAll(".thumb-box").forEach(el => el.classList.remove("active-thumb", "border-primary"));
+            if (thumbElement) {
+                thumbElement.classList.add("active-thumb", "border-primary");
+            }
+        }
+
+        // Adjust Quantity
+        function adjustQty(delta) {
+            const qtyInput = document.getElementById("detailQty");
+            if (!qtyInput) return;
+            let val = parseInt(qtyInput.value) || 1;
+            const max = parseInt(qtyInput.getAttribute("max")) || 99;
+            val += delta;
+            if (val < 1) val = 1;
+            if (val > max) val = max;
+            qtyInput.value = val;
+        }
+
+        // Handle Size Selection in Details
+        let selectedDetailSize = "@(Model.Sizes?.FirstOrDefault() ?? "مقاس واحد")";
+        document.querySelectorAll(".size-btn-detail").forEach(btn => {
+            btn.addEventListener("click", function () {
+                document.querySelectorAll(".size-btn-detail").forEach(b => {
+                    b.classList.remove("btn-primary", "active");
+                    b.classList.add("btn-outline-secondary");
+                });
+                this.classList.remove("btn-outline-secondary");
+                this.classList.add("btn-primary", "active");
+                selectedDetailSize = this.dataset.size;
+            });
+        });
+
+        // Add to Cart Click for Main Product
+        document.getElementById("btnAddToCartDetail").addEventListener("click", function () {
+            const qty = parseInt(document.getElementById("detailQty").value) || 1;
+            const productData = {
+                id: "@Model.Id",
+                name: "@Html.Raw(Model.Name?.Replace("\"", "\\\""))",
+                price: @(Model.Price ?? 0),
+                images: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(images)),
+                cat: "@(Model.Cat ?? "man")",
+                sizes: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Sizes ?? new List<string> { "مقاس واحد" }))
+            };
+
+            if (typeof window.addToCart === "function") {
+                window.addToCart("@Model.Id", selectedDetailSize, qty, productData);
+            }
+        });
+
+        // Add to Cart for Related Products
+        document.querySelectorAll(".btn-add-related-to-cart").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const pid = this.dataset.pid;
+                const name = this.dataset.name;
+                const price = parseFloat(this.dataset.price) || 0;
+                const image = this.dataset.image;
+                const cat = this.dataset.cat;
+                const size = this.dataset.size;
+
+                const productData = {
+                    id: pid,
+                    name: name,
+                    price: price,
+                    images: image ? [image] : [],
+                    cat: cat,
+                    sizes: [size]
+                };
+
+                if (typeof window.addToCart === "function") {
+                    window.addToCart(pid, size, 1, productData);
+                }
+            });
+        });
+    </script>
+}

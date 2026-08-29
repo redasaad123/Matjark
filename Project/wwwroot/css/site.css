@@ -1191,3 +1191,52 @@ footer.site {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   PRODUCT DETAILS & GALLERY STYLES
+========================================================= */
+.badge-discount-float {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--rust, #a63d2f);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(166, 61, 47, 0.35);
+}
+
+.thumb-box {
+    border: 2px solid transparent;
+    opacity: 0.7;
+}
+
+.thumb-box:hover,
+.thumb-box.active-thumb {
+    opacity: 1;
+    border-color: var(--pine, #1f2a24) !important;
+    transform: scale(1.04);
+}
+
+.size-btn-detail.active {
+    background-color: var(--pine, #1f2a24) !important;
+    border-color: var(--pine, #1f2a24) !important;
+    color: #fff !important;
+}
+
+.product-card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.product-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px -10px rgba(31, 42, 36, 0.18) !important;
+}
+
+.product-card-hover:hover .card-img-zoom {
+    transform: scale(1.05);
+}
+

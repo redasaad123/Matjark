@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using Core.Services;
 using Infrastructure.InterFace.Services;
 using Infrastructure.ViewModel;
@@ -19,9 +19,16 @@ namespace Project.Controllers
             this.imageStore = imageStore;
             this.categoryService = categoryService;
         }
+
+        public async Task<IActionResult> Index()
+        {
+            var products = await productService.GetAllProducts();
+            return View(products);
+        }
+
         public async Task<IActionResult> AddProducts()
         {
-            var cat =await categoryService.GetCategory();
+            var cat = await categoryService.GetCategory();
             ViewBag.Category = cat;
             ViewBag.Sizes = Enum.GetValues<Sizes>().ToList();
             return View();
@@ -31,11 +38,15 @@ namespace Project.Controllers
         public async Task<IActionResult> AddProducts(AddProductViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.Category = await categoryService.GetCategory();
+                ViewBag.Sizes = Enum.GetValues<Sizes>().ToList();
                 return View(model);
+            }
 
             var url = new List<string>();
 
-            if (model.Images.Count() != 0)
+            if (model.Images != null && model.Images.Count > 0)
             {
                 url = imageStore.StoreImage(model.Images);
                 model.GetImages = url;
@@ -43,9 +54,74 @@ namespace Project.Controllers
 
             var products = await productService.AddProduct(model);
 
-            return RedirectToAction(nameof(AddProducts));
-
+            return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> EditProducts(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var product = await productService.GetProductById(id);
+            if (product == null)
+                return NotFound();
+
+            ViewBag.Category = await categoryService.GetCategory();
+            ViewBag.Sizes = Enum.GetValues<Sizes>().ToList();
+            return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProducts(string id, AddProductViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Category = await categoryService.GetCategory();
+                ViewBag.Sizes = Enum.GetValues<Sizes>().ToList();
+                return View(model);
+            }
+
+            if (model.DeletedImages != null && model.DeletedImages.Any())
+            {
+                model.GetImages?.RemoveAll(x => model.DeletedImages.Contains(x));
+                imageStore.DeleteImages(model.DeletedImages);
+            }
+
+            var currentImages = model.GetImages?
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            if (model.Images != null && model.Images.Count > 0)
+            {
+                var newUrls = imageStore.StoreImage(model.Images);
+                if (newUrls != null && newUrls.Any())
+                {
+                    currentImages.AddRange(newUrls);
+                }
+            }
+
+            model.GetImages = currentImages;
+
+            var updated = await productService.UpdateProduct(id, model);
+            if (updated == null)
+                return NotFound();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteProduct(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                var deletedImages = await productService.DeleteProduct(id);
+                if (deletedImages != null && deletedImages.Any())
+                {
+                    imageStore.DeleteImages(deletedImages);
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

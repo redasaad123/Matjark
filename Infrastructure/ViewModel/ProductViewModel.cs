@@ -10,6 +10,7 @@ namespace Infrastructure.ViewModel
 {
     public class ProductViewModel
     {
+        public string? Id { get; set; }
         public string? Name { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;
         public string? Cat { get; set; } = "man";
