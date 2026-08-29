@@ -21,6 +21,7 @@ builder.Services.AddTransient<AppDBContext>();
 builder.Services.AddTransient<ImageStore>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<ICategoryService, CategroyService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 
 builder.Services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 

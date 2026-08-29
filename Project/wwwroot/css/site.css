@@ -1064,6 +1064,137 @@ footer.site {
         margin-bottom: 24px;
     }
 
+/* Modal Form Styles */
+.modal-stage {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-order-items {
+    background: var(--pine-2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: right;
+}
+
+    .modal-order-items h4 {
+        color: var(--ink);
+        font-size: .95rem;
+        margin-bottom: 12px;
+        font-family: 'El Messiri', serif;
+    }
+
+#modalOrderList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.order-item {
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-right: 3px solid var(--gold);
+}
+
+    .order-item .oi-name {
+        font-weight: 600;
+        color: var(--ink);
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .order-item .oi-meta {
+        font-size: .85rem;
+        color: var(--sage);
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .order-item .oi-price {
+        font-weight: 700;
+        color: var(--gold);
+        min-width: 100px;
+        text-align: left;
+    }
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+    .modal-form .form-group {
+        display: flex;
+        flex-direction: column;
+        text-align: right;
+    }
+
+    .modal-form label {
+        font-weight: 600;
+        font-size: .9rem;
+        color: var(--ink);
+        margin-bottom: 6px;
+    }
+
+    .modal-form input,
+    .modal-form textarea {
+        padding: 10px 12px;
+        border: 1.5px solid var(--line);
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: .9rem;
+        color: var(--ink);
+        background: white;
+        text-align: right;
+        direction: rtl;
+    }
+
+    .modal-form input:focus,
+    .modal-form textarea:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(200, 138, 44, 0.1);
+    }
+
+    .modal-form textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+.modal-total {
+    background: var(--pine-2);
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 8px 0 16px 0;
+}
+
+    .modal-total span:last-child {
+        color: var(--gold);
+        font-size: 1.1rem;
+    }
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+    .modal-actions button {
+        flex: 1;
+    }
+
 /* ---------- TOAST ---------- */
 .toast-wrap {
     position: fixed;

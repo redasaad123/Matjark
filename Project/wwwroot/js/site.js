@@ -1388,31 +1388,153 @@
                             return;
                         }
 
-
-                        cart = [];
-
-                        saveCart();
-
-                        renderCart();
-
-
                         closeCart();
-
-
-                        const modalOverlay =
-                            document.getElementById(
-                                "modalOverlay"
-                            );
-
-
-                        if (modalOverlay) {
-
-                            modalOverlay.classList.add(
-                                "show"
-                            );
-                        }
+                        showOrderForm();
                     }
                 );
+            }
+
+
+            /* =========================
+               ORDER FORM
+            ========================= */
+
+            function renderOrderItems() {
+                const list = document.getElementById("modalOrderList");
+                if (!list) return;
+
+                list.innerHTML = cart.map(c => {
+                    const p = findProduct(c.id);
+                    const name = p ? p.name : (c.name || "منتج");
+                    const price = p ? p.price : (c.price || 0);
+
+                    return `
+                        <div class="order-item">
+                            <span class="oi-name">${name}</span>
+                            <span class="oi-meta">المقاس: ${c.size} | الكمية: ${c.qty}</span>
+                            <span class="oi-price">${fmt(price * c.qty)}</span>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            function updateModalTotal() {
+                const total = cart.reduce((sum, c) => {
+                    const p = findProduct(c.id);
+                    const price = p ? p.price : (c.price || 0);
+                    return sum + (price * c.qty);
+                }, 0);
+
+                const totalEl = document.getElementById("modalTotal");
+                if (totalEl) {
+                    totalEl.textContent = fmt(total);
+                }
+            }
+
+            function showOrderForm() {
+                renderOrderItems();
+                updateModalTotal();
+
+                const modalOverlay = document.getElementById("modalOverlay");
+                const formStage = document.getElementById("modalFormStage");
+                const successStage = document.getElementById("modalSuccessStage");
+
+                if (formStage) formStage.style.display = "block";
+                if (successStage) successStage.style.display = "none";
+                if (modalOverlay) modalOverlay.classList.add("show");
+            }
+
+            function showOrderSuccess() {
+                const modalOverlay = document.getElementById("modalOverlay");
+                const formStage = document.getElementById("modalFormStage");
+                const successStage = document.getElementById("modalSuccessStage");
+
+                if (formStage) formStage.style.display = "none";
+                if (successStage) successStage.style.display = "block";
+            }
+
+            window.showOrderForm = showOrderForm;
+
+
+            /* =========================
+               ORDER FORM SUBMIT
+            ========================= */
+
+            const orderForm = document.getElementById("orderForm");
+            if (orderForm) {
+                orderForm.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const name = document.getElementById("customerName").value;
+                    const email = document.getElementById("customerEmail").value;
+                    const phone = document.getElementById("customerPhone").value;
+                    const address = document.getElementById("customerAddress").value;
+
+                    const orderData = {
+                        customer: {
+                            name: name,
+                            email: email,
+                            phoneNumber: phone,
+                            address: address
+                        },
+                        orderLines: cart.map(c => {
+                            const p = findProduct(c.id);
+                            const price = p ? p.price : (c.price || 0);
+                            const size = c.size;
+                            
+                            return {
+                                productId: c.id,
+                                quantity: c.qty,
+                                price: price,
+                                size: size
+                            };
+                        })
+                    };
+
+                    try {
+                        const response = await fetch("/Home/CreateOrder", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(orderData)
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            
+                            // Clear cart
+                            cart = [];
+                            saveCart();
+                            renderCart();
+
+                            // Show success message
+                            showOrderSuccess();
+                            
+                            showToast("تم إنشاء الطلب بنجاح! ✅");
+                        } else {
+                            showToast("حدث خطأ أثناء إنشاء الطلب ❌");
+                        }
+                    } catch (error) {
+                        console.error("Order creation error:", error);
+                        showToast("خطأ في الاتصال بالخادم ❌");
+                    }
+                });
+            }
+
+
+            /* =========================
+               MODAL CANCEL
+            ========================= */
+
+            const modalCancelBtn = document.getElementById("modalCancelBtn");
+            if (modalCancelBtn) {
+                modalCancelBtn.addEventListener("click", function () {
+                    const modalOverlay = document.getElementById("modalOverlay");
+                    if (modalOverlay) {
+                        modalOverlay.classList.remove("show");
+                    }
+                });
             }
 
 
