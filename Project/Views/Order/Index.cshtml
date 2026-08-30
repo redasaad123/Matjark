@@ -1,0 +1,154 @@
+@model IEnumerable<Core.Models.Order>
+@using Core.enums
+
+@{
+    ViewData["Title"] = "الطلبات المرسلة";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-dark">الطلبات المرسلة للمورد</h1>
+            <p class="text-muted">قائمة الطلبات التي تم إرسالها وتحتاج إلى معالجة</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            لا توجد طلبات حالياً
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>اسم العميل</th>
+                        <th>رقم الطلب</th>
+                        <th>السعر الإجمالي</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@order.Customer?.Name ?? "بدون اسم"</strong>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="text-decoration-none">
+                                    @if (order.OrderLines != null && order.OrderLines.Any())
+                                    {
+                                        <strong>@string.Join(", ", order.OrderLines.Select(ol => ol.ProductName).Take(2))</strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">بدون منتجات</span>
+                                    }
+                                </a>
+                            </td>
+                            <td>@order.TotalPrice.ToString("C")</td>
+                            <td>@order.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(order.Status)">
+                                    @GetStatusLabel(order.Status)
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <form method="post" action="@Url.Action("MarkAsCompleted", "Order")" style="display:inline;">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success" title="تم التعبئة">
+                                            ✓ تم
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="@Url.Action("MarkAsMissingItems", "Order")" style="display:inline;">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="btn btn-sm btn-warning" title="فيه حاجة ناقصة">
+                                            ⚠ ناقص
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="@Url.Action("MarkAsDeliveredToSupplier", "Order")" style="display:inline;">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="btn btn-sm btn-primary" title="تم التسليم للمورد">
+                                            📦 سلم
+                                        </button>
+                                    </form>
+
+                                    <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-sm btn-info">
+                                        👁 عرض
+                                    </a>
+
+                                    <form method="post" action="@Url.Action("DeleteOrder", "Order")" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟');">
+                                        <input type="hidden" name="id" value="@order.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger" title="حذف الطلب">
+                                            🗑 حذف
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .table {
+        direction: rtl;
+    }
+
+    .btn-group {
+        gap: 5px;
+        display: flex;
+        flex-direction: row-reverse;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    h1 {
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 10px;
+    }
+</style>
+
+@functions {
+    private string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Completed => "bg-success",
+            OrderStatus.MissingItems => "bg-warning text-dark",
+            OrderStatus.DeliveredToSupplier => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusLabel(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "قيد الانتظار",
+            OrderStatus.Completed => "تم التعبئة",
+            OrderStatus.MissingItems => "حاجة ناقصة",
+            OrderStatus.DeliveredToSupplier => "مُسلم للمورد",
+            _ => "غير معروف"
+        };
+    }
+}

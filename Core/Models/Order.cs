@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,11 @@ namespace Core.Models
         public Customer Customer { get; set; }
 
         public decimal TotalPrice { get; set; }
+
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public List<MissingOrderLine> MissingOrderLines { get; set; }
     }
 }

@@ -21,6 +21,11 @@ namespace Infrastructure.Services
 
         public Task<string> GetCustomerInfo(CustomerViewModel model)
         {
+            if (model == null)
+                return Task.FromResult("");
+
+            var info = $"الاسم: {model.Name}, الهاتف: {model.PhoneNumber}, العنوان: {model.Address}";
+            return Task.FromResult(info);
         }
     }
 }

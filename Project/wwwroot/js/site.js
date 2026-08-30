@@ -1465,6 +1465,16 @@
                 orderForm.addEventListener("submit", async function (e) {
                     e.preventDefault();
 
+                    const confirmBtn = document.getElementById("modalConfirmBtn");
+                    const originalText = confirmBtn ? confirmBtn.textContent : "تأكيد الطلب";
+
+                    // Disable button and show loading state
+                    if (confirmBtn) {
+                        confirmBtn.disabled = true;
+                        confirmBtn.textContent = "جاري حفظ الطلب...";
+                        confirmBtn.style.opacity = "0.6";
+                    }
+
                     const name = document.getElementById("customerName").value;
                     const email = document.getElementById("customerEmail").value;
                     const phone = document.getElementById("customerPhone").value;
@@ -1480,10 +1490,12 @@
                         orderLines: cart.map(c => {
                             const p = findProduct(c.id);
                             const price = p ? p.price : (c.price || 0);
+                            const name = p ? p.name : (c.name || "منتج");
                             const size = c.size;
                             
                             return {
                                 productId: c.id,
+                                productName: name,
                                 quantity: c.qty,
                                 price: price,
                                 size: size
@@ -1492,7 +1504,7 @@
                     };
 
                     try {
-                        const response = await fetch("/Home/CreateOrder", {
+                        const response = await fetch("/Order/CreateOrder", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -1514,10 +1526,24 @@
                             showToast("تم إنشاء الطلب بنجاح! ✅");
                         } else {
                             showToast("حدث خطأ أثناء إنشاء الطلب ❌");
+                            
+                            // Re-enable button on error
+                            if (confirmBtn) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.textContent = originalText;
+                                confirmBtn.style.opacity = "1";
+                            }
                         }
                     } catch (error) {
                         console.error("Order creation error:", error);
                         showToast("خطأ في الاتصال بالخادم ❌");
+                        
+                        // Re-enable button on error
+                        if (confirmBtn) {
+                            confirmBtn.disabled = false;
+                            confirmBtn.textContent = originalText;
+                            confirmBtn.style.opacity = "1";
+                        }
                     }
                 });
             }

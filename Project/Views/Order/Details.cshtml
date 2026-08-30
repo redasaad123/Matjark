@@ -1,0 +1,280 @@
+@model Core.Models.Order
+@using Core.enums
+
+@{
+    ViewData["Title"] = "تفاصيل الطلب";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-dark">تفاصيل الطلب</h1>
+                    <p class="text-muted">
+                        العميل: <strong>@Model.Customer?.Name ?? "بدون اسم"</strong> 
+                        <span class="ms-3">| رقم الطلب: @Model.Id.Substring(0, 8)...</span>
+                    </p>
+                </div>
+                <a href="@Url.Action("Index", "Order")" class="btn btn-outline-secondary">
+                    ← العودة إلى القائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">معلومات الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>رقم الطلب:</strong> @Model.Id</p>
+                    <p><strong>السعر الإجمالي:</strong> @Model.TotalPrice.ToString("C")</p>
+                    <p><strong>تاريخ الطلب:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>الحالة:</strong> 
+                        <span class="badge @GetStatusBadgeClass(Model.Status)">
+                            @GetStatusLabel(Model.Status)
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">بيانات العميل</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Customer != null)
+                    {
+                        <p><strong>الاسم:</strong> @Model.Customer.Name</p>
+                        <p><strong>رقم الجوال:</strong> @Model.Customer.PhoneNumber</p>
+                        <p><strong>البريد الإلكتروني:</strong> @Model.Customer.Email</p>
+                        <p><strong>العنوان:</strong> @Model.Customer.Address</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">لا توجد بيانات عميل</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">تفاصيل المنتجات</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.OrderLines != null && Model.OrderLines.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>اسم المنتج</th>
+                                        <th>الحجم</th>
+                                        <th>الكمية</th>
+                                        <th>السعر</th>
+                                        <th>الإجمالي</th>
+                                        <th>الإجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var line in Model.OrderLines)
+                                    {
+                                        <tr>
+                                            <td><strong>@line.ProductName</strong></td>
+                                            <td>@line.Size.ToString()</td>
+                                            <td>@line.Quantity</td>
+                                            <td>@line.Price.ToString("C")</td>
+                                            <td>@(line.Price * line.Quantity).ToString("C")</td>
+                                            <td>
+                                                <form method="post" action="@Url.Action("MarkProductAsMissing", "Order")" style="display:inline;">
+                                                    <input type="hidden" name="orderId" value="@Model.Id" />
+                                                    <input type="hidden" name="productId" value="@line.ProductId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="هذا المنتج ناقص">
+                                                        ❌ ناقص
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">لا توجد منتجات في هذا الطلب</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.MissingOrderLines != null && Model.MissingOrderLines.Count > 0)
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">📋 المنتجات الناقصة (@Model.MissingOrderLines.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var line in Model.MissingOrderLines)
+                        {
+                            <div class="missing-product-card mb-4 p-3 border rounded" style="background-color: #fff3cd; border-color: #ffc107;">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-2">
+                                                    <strong>�️ اسم المنتج:</strong><br/>
+                                                    <span style="font-size: 1.1em; color: #d63031; font-weight: bold;">@line.ProductName</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-2">
+                                                    <strong>📏 الحجم:</strong> <span class="badge bg-info">@line.Size</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <p class="mb-0">
+                                                    <strong>📦 الكمية:</strong> <span class="badge bg-primary">@line.Quantity</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <p class="mb-0">
+                                                    <strong>💰 السعر:</strong> <span class="text-danger">@line.Price.ToString("C")</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <p class="mb-0">
+                                                    <strong>📊 الإجمالي:</strong> <span class="text-danger fw-bold">@(line.Price * line.Quantity).ToString("C")</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                        <small class="text-muted">
+                                            🕐 تم الإبلاغ: @line.ReportedDate.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <form method="post" action="@Url.Action("RestoreProduct", "Order")">
+                                            <input type="hidden" name="orderId" value="@Model.Id" />
+                                            <input type="hidden" name="missingProductId" value="@line.ProductId" />
+                                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                                ✓ توفر الآن
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="alert alert-danger mt-3">
+                            <strong>⚠️ تنبيه مهم:</strong>
+                            <ul class="mb-0 mt-2">
+                                @{
+                                    decimal totalMissing = Model.MissingOrderLines?.Sum(m => m.Price * m.Quantity) ?? 0m;
+                                }
+                                <li>تم طرح <strong>@totalMissing.ToString("C")</strong> من السعر الإجمالي للمنتجات الناقصة</li>
+                                <li>اضغط "✓ توفر الآن" لإعادة المنتج عند توفره في المستودع</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }</div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">تحديث حالة الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap justify-content-end">
+                        <form method="post" action="@Url.Action("MarkAsCompleted", "Order")" style="display:inline;">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success btn-lg">
+                                ✓ تم التعبئة
+                            </button>
+                        </form>
+
+                        <form method="post" action="@Url.Action("MarkAsMissingItems", "Order")" style="display:inline;">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                ⚠ فيه حاجة ناقصة
+                            </button>
+                        </form>
+
+                        <form method="post" action="@Url.Action("MarkAsDeliveredToSupplier", "Order")" style="display:inline;">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                📦 تسليم للمورد
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .card {
+        border-right: 4px solid #007bff;
+    }
+
+    .btn {
+        min-width: 150px;
+    }
+
+    h1 {
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 10px;
+    }
+
+    .gap-2 {
+        gap: 10px;
+    }
+</style>
+
+@functions {
+    private string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Completed => "bg-success",
+            OrderStatus.MissingItems => "bg-warning text-dark",
+            OrderStatus.DeliveredToSupplier => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusLabel(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "قيد الانتظار",
+            OrderStatus.Completed => "تم التعبئة",
+            OrderStatus.MissingItems => "حاجة ناقصة",
+            OrderStatus.DeliveredToSupplier => "مُسلم للمورد",
+            _ => "غير معروف"
+        };
+    }
+}

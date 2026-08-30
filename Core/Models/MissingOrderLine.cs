@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 namespace Core.Models
 {
     [Owned]
-    public class OrderLine
+    public class MissingOrderLine
     {
+        public string Id { get; set; }
         public string ProductId { get; set; }
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public Sizes Size { get; set; }
+        public DateTime ReportedDate { get; set; } = DateTime.UtcNow;
     }
 }

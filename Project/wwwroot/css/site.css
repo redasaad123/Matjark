@@ -319,13 +319,25 @@ nav.main-nav a {
     padding: 14px 26px;
     border-radius: 999px;
     border: none;
-    transition: transform .2s, background .2s;
+    transition: transform .2s, background .2s, opacity .2s;
+    cursor: pointer;
 }
 
     .btn:hover {
         background: var(--gold-2);
         transform: translateY(-2px);
     }
+
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        transform: none;
+    }
+
+        .btn:disabled:hover {
+            background: var(--gold);
+            transform: none;
+        }
 
     .btn.ghost {
         background: transparent;
@@ -336,6 +348,11 @@ nav.main-nav a {
         .btn.ghost:hover {
             border-color: var(--gold);
             background: rgba(241,236,223,.06);
+        }
+
+        .btn.ghost:disabled {
+            opacity: 0.5;
+            border-color: rgba(241,236,223,.2);
         }
 
 .hero-cta-row {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260830123604_AddMissingOrderLines")]
+    partial class AddMissingOrderLines
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,37 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Core.Models.MissingOrderLine", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OrderId")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ReportedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("MissingOrderLine");
                 });
 
             modelBuilder.Entity("Core.Models.Order", b =>
@@ -102,6 +136,13 @@ namespace Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Core.Models.MissingOrderLine", b =>
+                {
+                    b.HasOne("Core.Models.Order", null)
+                        .WithMany("MissingOrderLines")
+                        .HasForeignKey("OrderId");
+                });
+
             modelBuilder.Entity("Core.Models.Order", b =>
                 {
                     b.OwnsOne("Core.Models.Customer", "Customer", b1 =>
@@ -133,42 +174,6 @@ namespace Infrastructure.Migrations
                                 .HasForeignKey("OrderId");
                         });
 
-                    b.OwnsMany("Core.Models.MissingOrderLine", "MissingOrderLines", b1 =>
-                        {
-                            b1.Property<string>("OrderId")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Id")
-                                .HasColumnType("text");
-
-                            b1.Property<decimal>("Price")
-                                .HasColumnType("numeric");
-
-                            b1.Property<string>("ProductId")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("ProductName")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<int>("Quantity")
-                                .HasColumnType("integer");
-
-                            b1.Property<DateTime>("ReportedDate")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.Property<int>("Size")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("OrderId", "Id");
-
-                            b1.ToTable("MissingOrderLine");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OrderId");
-                        });
-
                     b.OwnsMany("Core.Models.OrderLine", "OrderLines", b1 =>
                         {
                             b1.Property<string>("OrderId")
@@ -184,10 +189,6 @@ namespace Infrastructure.Migrations
                                 .HasColumnType("numeric");
 
                             b1.Property<string>("ProductId")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("ProductName")
                                 .IsRequired()
                                 .HasColumnType("text");
 
@@ -208,8 +209,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer")
                         .IsRequired();
 
-                    b.Navigation("MissingOrderLines");
-
                     b.Navigation("OrderLines");
                 });
 
@@ -225,6 +224,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Models.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Core.Models.Order", b =>
+                {
+                    b.Navigation("MissingOrderLines");
                 });
 #pragma warning restore 612, 618
         }
