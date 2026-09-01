@@ -31,7 +31,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>رقم الطلب:</strong> @Model.Id</p>
-                    <p><strong>السعر الإجمالي:</strong> @Model.TotalPrice.ToString("C")</p>
+                    <p><strong>السعر الإجمالي:</strong> @(Model.TotalPrice) ج.م  </p>
                     <p><strong>تاريخ الطلب:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
                     <p><strong>الحالة:</strong> 
                         <span class="badge @GetStatusBadgeClass(Model.Status)">
@@ -92,8 +92,8 @@
                                             <td><strong>@line.ProductName</strong></td>
                                             <td>@line.Size.ToString()</td>
                                             <td>@line.Quantity</td>
-                                            <td>@line.Price.ToString("C")</td>
-                                            <td>@(line.Price * line.Quantity).ToString("C")</td>
+                                            <td>@line.Price  ج.م</td>
+                                            <td>@(line.Price* line.Quantity) ج.م</td>
                                             <td>
                                                 <form method="post" action="@Url.Action("MarkProductAsMissing", "Order")" style="display:inline;">
                                                     <input type="hidden" name="orderId" value="@Model.Id" />
@@ -153,12 +153,12 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <p class="mb-0">
-                                                    <strong>💰 السعر:</strong> <span class="text-danger">@line.Price.ToString("C")</span>
+                                                    <strong>💰 السعر:</strong> <span class="text-danger">@line.Price ج.م</span>
                                                 </p>
                                             </div>
                                             <div class="col-md-4">
                                                 <p class="mb-0">
-                                                    <strong>📊 الإجمالي:</strong> <span class="text-danger fw-bold">@(line.Price * line.Quantity).ToString("C")</span>
+                                                    <strong>📊 الإجمالي:</strong> <span class="text-danger fw-bold">@(line.Price * line.Quantity) ج.م</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -185,7 +185,7 @@
                                 @{
                                     decimal totalMissing = Model.MissingOrderLines?.Sum(m => m.Price * m.Quantity) ?? 0m;
                                 }
-                                <li>تم طرح <strong>@totalMissing.ToString("C")</strong> من السعر الإجمالي للمنتجات الناقصة</li>
+                                <li>تم طرح <strong>@totalMissing ج.م</strong> من السعر الإجمالي للمنتجات الناقصة</li>
                                 <li>اضغط "✓ توفر الآن" لإعادة المنتج عند توفره في المستودع</li>
                             </ul>
                         </div>

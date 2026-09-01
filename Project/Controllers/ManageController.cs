@@ -2,6 +2,7 @@ using Core.enums;
 using Core.Services;
 using Infrastructure.InterFace.Services;
 using Infrastructure.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -19,13 +20,15 @@ namespace Project.Controllers
             this.imageStore = imageStore;
             this.categoryService = categoryService;
         }
-
+        
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var products = await productService.GetAllProducts();
             return View(products);
         }
 
+        [Authorize]
         public async Task<IActionResult> AddProducts()
         {
             var cat = await categoryService.GetCategory();
@@ -35,6 +38,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddProducts(AddProductViewModel model)
         {
             if (!ModelState.IsValid)
@@ -56,7 +60,8 @@ namespace Project.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+        
+        [Authorize]
         public async Task<IActionResult> EditProducts(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -72,6 +77,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> EditProducts(string id, AddProductViewModel model)
         {
             if (!ModelState.IsValid)
@@ -111,6 +117,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             if (!string.IsNullOrEmpty(id))

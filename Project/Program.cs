@@ -5,6 +5,7 @@ using Infrastructure.InterFace.Services;
 using Infrastructure.Services;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDBContext>();
+builder.Services.AddRazorPages();
 builder.Services.AddTransient<AppDBContext>();
 builder.Services.AddTransient<ImageStore>();
 builder.Services.AddTransient<IProductService, ProductService>();
@@ -44,7 +48,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapRazorPages(); 
 
 app.MapControllerRoute(
     name: "default",
