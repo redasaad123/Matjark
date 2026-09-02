@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 });
 
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDBContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<AppDBContext>();
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<AppDBContext>();
 builder.Services.AddTransient<ImageStore>();
