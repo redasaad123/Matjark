@@ -2,7 +2,7 @@ name: Deploy Application
 on:
   push:
     branches: [ main ]
-    paths-ignore:
+    paths:
       - 'docker-compose.yml'
       - 'nginx/nginx.conf'
   workflow_dispatch:
