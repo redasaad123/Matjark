@@ -177,6 +177,14 @@
     }
 
 
+    function resolveImageUrl(img) {
+        if (!img) return "";
+        if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("/")) {
+            return img;
+        }
+        return `/Images/${img}`;
+    }
+
     /* =========================================================
        PRODUCT MEDIA
     ========================================================= */
@@ -208,7 +216,7 @@
 
             return `
                 <img
-                    src="/Images/${p.images[0]}"
+                    src="${resolveImageUrl(p.images[0])}"
                     class="product-image"
                     alt="${p.name}"
                 >
@@ -243,7 +251,7 @@
                         >
 
                             <img
-                                src="/Images/${img}"
+                                src="${resolveImageUrl(img)}"
                                 class="d-block product-image img-fluid"
                                 alt="${p.name} "
                             >
@@ -673,7 +681,7 @@
                     images.length > 0
                         ? `
                             <img
-                                src="/Images/${images[0]}"
+                                src="${resolveImageUrl(images[0])}"
                                 alt="${name}"
                             >
                         `

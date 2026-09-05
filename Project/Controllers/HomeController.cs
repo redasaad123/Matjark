@@ -44,18 +44,9 @@ namespace Project.Controllers
             var allProducts = (await productService.GetAllProducts()).OfType<GetProductViewModel>().ToList();
 
             var related = allProducts
-                .Where(p => p.Id != id && string.Equals(p.Cat, product.Cat, StringComparison.OrdinalIgnoreCase))
+                .Where(p => p.Id != id && !string.IsNullOrEmpty(product.Cat) && string.Equals(p.Cat?.Trim(), product.Cat?.Trim(), StringComparison.OrdinalIgnoreCase))
                 .Take(4)
                 .ToList();
-
-            if (related.Count < 4)
-            {
-                var others = allProducts
-                    .Where(p => p.Id != id && !related.Any(r => r.Id == p.Id))
-                    .Take(4 - related.Count)
-                    .ToList();
-                related.AddRange(others);
-            }
 
             ViewBag.RelatedProducts = related;
             return View(product);

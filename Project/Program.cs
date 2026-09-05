@@ -42,19 +42,20 @@ builder.Services.AddScoped<ImageStore>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IStorageBlobService, StorageBlobServices>();
 builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 
 var app = builder.Build();
 
-// Security Headers Middleware
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
-    context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
-    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
-    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
-    await next();
-});
+//// Security Headers Middleware
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+//    context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+//    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+//    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+//    await next();
+//});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

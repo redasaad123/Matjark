@@ -13,12 +13,14 @@ namespace Project.Controllers
         private readonly IProductService productService;
         private readonly ImageStore imageStore;
         private readonly ICategoryService categoryService;
+        private readonly IStorageBlobService storageBlob;
 
-        public ManageController(IProductService productService, ImageStore imageStore , ICategoryService categoryService)
+        public ManageController(IProductService productService, ImageStore imageStore , ICategoryService categoryService , IStorageBlobService storageBlob)
         {
             this.productService = productService;
             this.imageStore = imageStore;
             this.categoryService = categoryService;
+            this.storageBlob = storageBlob;
         }
         
         [Authorize]
@@ -53,7 +55,15 @@ namespace Project.Controllers
 
             if (model.Images != null && model.Images.Count > 0)
             {
-                url = await imageStore.StoreImageAsync(model.Images);
+                try
+                {
+                    url = await storageBlob.UploadFileAsync(model.Images, "Images");
+                }
+                catch
+                {
+                    url = await imageStore.StoreImageAsync(model.Images);
+                }
+
                 model.GetImages = url;
             }
 
@@ -102,7 +112,16 @@ namespace Project.Controllers
 
             if (model.Images != null && model.Images.Count > 0)
             {
-                var newUrls = await imageStore.StoreImageAsync(model.Images);
+                List<string> newUrls;
+                try
+                {
+                    newUrls = await storageBlob.UploadFileAsync(model.Images, "Images");
+                }
+                catch
+                {
+                    newUrls = await imageStore.StoreImageAsync(model.Images);
+                }
+
                 if (newUrls != null && newUrls.Any())
                 {
                     currentImages.AddRange(newUrls);
