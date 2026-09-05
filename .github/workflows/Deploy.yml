@@ -1,0 +1,110 @@
+name: Deploy Application
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 'Name of the application'
+        required: true
+        type: string
+
+    secrets: # لازم تعرفهم هنا عشان الـ Workflow يشوفهم
+      IP_MASTER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_USER:
+        required: false
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    
+    steps:
+      
+
+      - name: Checkout DevOps Repo (Docker Compose)
+        uses: actions/checkout@v3
+
+
+      - name: Validate SSH key secret
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "❌ Missing SSH private key secret"
+            echo "Provide: SSH_PRIVATE_KEY"
+            echo "If this workflow is called from another workflow, make sure the caller passes the secret to Deploy.yml"
+            exit 1
+          fi
+
+
+      # 🔐 Setup SSH باستخدام Key بدل Password 
+      - name: Setup SSH Agent 
+        uses: webfactory/ssh-agent@v0.8.0 
+        with: 
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY || secrets.SSH_Key }}
+        
+
+
+      - name: Setup SSH Configuration
+        run: |
+          if [ -z "${{ secrets.IP_MASTER }}" ]; then
+            echo "❌ Missing IP_MASTER secret"
+            exit 1
+          fi
+          
+          
+          # Set default user to root if SSH_USER not provided
+          SSH_USER="${{ secrets.SSH_USER }}"
+          if [ -z "$SSH_USER" ]; then
+            SSH_USER="root"
+          fi
+          echo "SSH_USER=$SSH_USER" >> $GITHUB_ENV
+          
+          
+          
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.IP_MASTER }} >> ~/.ssh/known_hosts
+
+
+      - name: Test SSH Connection
+        run: |
+          if ssh  $SSH_USER@${{ secrets.IP_MASTER }} "echo 'SSH connection successful!'"; then
+            echo "✅ SSH connection to ${{ secrets.IP_MASTER }} successful"
+          else
+            echo "❌ SSH connection to ${{ secrets.IP_MASTER }} failed"
+            exit 1
+          fi
+
+      - name: Copy docker-compose file to remote server
+        run: |
+
+          TARGET_DIR="/home/$SSH_USER"
+
+          # copy docker-compose
+          scp docker-compose.yml $SSH_USER@${{ secrets.IP_MASTER }}:$TARGET_DIR/docker-compose.yml
+
+          # copy nginx config
+          scp nginx/nginx.conf $SSH_USER@${{ secrets.IP_MASTER }}:$TARGET_DIR/nginx.conf
+
+          # move nginx config + test + reload
+          ssh $SSH_USER@${{ secrets.IP_MASTER }} "
+            sudo mv /home/$SSH_USER/nginx.conf /etc/nginx/sites-available/default &&
+            sudo nginx -t &&
+            sudo systemctl reload nginx
+          "
+
+          
+
+      - name: Deploy
+        run: |
+          ssh $SSH_USER@${{ secrets.IP_MASTER }} "
+            cd $TARGET_DIR && \
+            docker compose pull && \
+            docker compose down && \
+            docker compose up -d
+          "
+
+
+        
+
+      

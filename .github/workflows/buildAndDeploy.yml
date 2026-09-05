@@ -1,0 +1,48 @@
+name: Build CI Pipeline
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 'Name of the application'
+        required: true
+        type: string 
+    secrets: # لازم تعرفهم هنا عشان الـ Workflow يشوفهم
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
+
+      
+
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+    # هنا بنقول للجوكر إن كل الأوامر اللي جاية هتتنفذ جوه فولدر الـ backend
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Matgark.sln
+
+      - name: Build
+        run: dotnet build Matgark.sln --configuration Release --no-restore
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        # لاحظ هنا إننا بنبني الـ Docker من الفولدر الحالي اللي هو backend
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ inputs.app_name }}:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ inputs.app_name }}:latest
