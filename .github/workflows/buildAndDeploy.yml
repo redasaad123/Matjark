@@ -1,11 +1,11 @@
 name: Build CI Pipeline
 on:
-  workflow_call:
-    inputs:
-      app_name:
-        description: 'Name of the application'
-        required: true
-        type: string 
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docker-compose.yml'
+      - 'nginx/nginx.conf'
+  workflow_dispatch:
     secrets: # لازم تعرفهم هنا عشان الـ Workflow يشوفهم
       DOCKER_USERNAME:
         required: true
