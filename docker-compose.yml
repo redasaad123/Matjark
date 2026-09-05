@@ -22,7 +22,7 @@ services:
       - ./certbot/var:/var/lib/letsencrypt
     networks:
       - webnet
-    command: certonly --webroot --webroot-path=/var/www/html --email [EMAIL_ADDRESS] --agree-tos --no-eff-email --force-renewal -d matjark.duckdns.org -d www.matjark.duckdns.org
+    command: certonly --webroot --webroot-path=/var/www/html --email matjark.duckdns.org --agree-tos --no-eff-email --force-renewal -d matjark.duckdns.org -d www.matjark.duckdns.org
     restart: "no"
   
   certbot-renew:
