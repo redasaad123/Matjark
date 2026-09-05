@@ -4,7 +4,7 @@ services:
   # مثال لخدمة ويب
   backend:
     build: .
-    image: redasaad123/walaaplus:latest
+    image: redasaad123/matgark:latest
     env_file:
       - .env
     ports:
@@ -22,7 +22,7 @@ services:
       - ./certbot/var:/var/lib/letsencrypt
     networks:
       - webnet
-    command: certonly --webroot --webroot-path=/var/www/html --email support@walaa-plus.com --agree-tos --no-eff-email --force-renewal  -d api.walaa-plus.com  -d www.walaa-plus.com -d walaa-plus.com
+    command: certonly --webroot --webroot-path=/var/www/html --email [EMAIL_ADDRESS] --agree-tos --no-eff-email --force-renewal -d matjark.duckdns.org -d www.matjark.duckdns.org
     restart: "no"
   
   certbot-renew:
