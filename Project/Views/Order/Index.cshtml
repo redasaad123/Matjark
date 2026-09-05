@@ -38,7 +38,7 @@
                     {
                         <tr>
                             <td>
-                                <strong>@order.Customer?.Name ?? "بدون اسم"</strong>
+                                <strong>@(order.Customer?.Name ?? "بدون اسم")</strong>
                             </td>
                             <td>
                                 <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="text-decoration-none">
@@ -62,6 +62,7 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <form method="post" action="@Url.Action("MarkAsCompleted", "Order")" style="display:inline;">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@order.Id" />
                                         <button type="submit" class="btn btn-sm btn-success" title="تم التعبئة">
                                             ✓ تم
@@ -69,6 +70,7 @@
                                     </form>
 
                                     <form method="post" action="@Url.Action("MarkAsMissingItems", "Order")" style="display:inline;">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@order.Id" />
                                         <button type="submit" class="btn btn-sm btn-warning" title="فيه حاجة ناقصة">
                                             ⚠ ناقص
@@ -76,6 +78,7 @@
                                     </form>
 
                                     <form method="post" action="@Url.Action("MarkAsDeliveredToSupplier", "Order")" style="display:inline;">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@order.Id" />
                                         <button type="submit" class="btn btn-sm btn-primary" title="تم التسليم للمورد">
                                             📦 سلم
@@ -87,6 +90,7 @@
                                     </a>
 
                                     <form method="post" action="@Url.Action("DeleteOrder", "Order")" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟');">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@order.Id" />
                                         <button type="submit" class="btn btn-sm btn-danger" title="حذف الطلب">
                                             🗑 حذف

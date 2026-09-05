@@ -10,24 +10,26 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class CategroyService : ICategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork<Category> categoryUnitOfWork;
 
-        public CategroyService(IUnitOfWork<Category> CategoryUnitOfWork)
+        public CategoryService(IUnitOfWork<Category> CategoryUnitOfWork)
         {
             categoryUnitOfWork = CategoryUnitOfWork;
         }
         public async Task<IEnumerable<CategoryViewModel>> GetCategory()
         {
             var cat = await categoryUnitOfWork.Entity.GetAllAsync();
-            if (cat.Count() == 0) 
+            if (cat == null || !cat.Any()) 
                 return Enumerable.Empty<CategoryViewModel>();
 
             var mapping = cat.Select(x => new CategoryViewModel
             {
                 Id = x.Id,
-                CategoryName = x.Name
+                CategoryName = x.Name,
+                CategoryNameInArabic = x.NameInArabic
+
 
             }).ToList();
             return mapping;
@@ -35,6 +37,8 @@ namespace Infrastructure.Services
 
         public async Task<CategoryViewModel?> GetCategoryById(string id)
         {
+            if (string.IsNullOrEmpty(id)) return null;
+
             var cat = await categoryUnitOfWork.Entity.GetById(id);
             if (cat == null)
                 return null;
@@ -42,7 +46,9 @@ namespace Infrastructure.Services
             return new CategoryViewModel
             {
                 Id = cat.Id,
-                CategoryName = cat.Name
+                CategoryName = cat.Name,
+                CategoryNameInArabic = cat.NameInArabic
+
             };
         }
 
@@ -52,41 +58,40 @@ namespace Infrastructure.Services
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = model.CategoryName,
+                NameInArabic = model.CategoryNameInArabic
 
             };
 
             await categoryUnitOfWork.Entity.AddAsync(cat);
-            categoryUnitOfWork.SaveChanges();
+            await categoryUnitOfWork.SaveChangesAsync();
             return cat;
         }
 
 
-        public async Task<Category> UpdateCategory( CategoryViewModel model , string id)
+        public async Task<Category?> UpdateCategory( CategoryViewModel model , string id)
         {
             var cat =await categoryUnitOfWork.Entity.GetById(id);
             if (cat == null)
                 return null;
 
             cat.Name = model.CategoryName;
-            
+            cat.NameInArabic = model.CategoryNameInArabic;
+
             await categoryUnitOfWork.Entity.UpdateAsync(cat);
-            categoryUnitOfWork.SaveChanges();
+            await categoryUnitOfWork.SaveChangesAsync();
             return cat;
-
-
-
-            
-            
         }
 
         public async Task DeleteCategory(string id)
         {
+            if (string.IsNullOrEmpty(id)) return;
+
             var cat = await categoryUnitOfWork.Entity.GetById(id);
-            if (cat == null) { }
+            if (cat == null) return;
 
             categoryUnitOfWork.Entity.Delete(cat);
 
-            categoryUnitOfWork.SaveChanges();
+            await categoryUnitOfWork.SaveChangesAsync();
 
         }
     }

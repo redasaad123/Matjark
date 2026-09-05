@@ -293,14 +293,22 @@
 
     function matchesFilter(p) {
 
-        if (currentFilter === "all")
+        if (!currentFilter || currentFilter === "all")
             return true;
 
         if (currentFilter === "sale" || currentFilter === "sales") {
             return p.isDiscounted === true || p.IsDiscounted === true;
         }
 
-        return p.cat === currentFilter;
+        if (!p.cat) return false;
+
+        const catStr = String(p.cat).trim().toLowerCase();
+        const filterStr = String(currentFilter).trim().toLowerCase();
+
+        return (
+            catStr === filterStr ||
+            p.cat === currentFilter
+        );
     }
 
 
@@ -547,6 +555,7 @@
 
     window.addToCart = addToCart;
     window.openCart = openCart;
+    window.closeCart = closeCart;
     window.renderCart = renderCart;
 
 
@@ -625,21 +634,19 @@
         if (cart.length === 0) {
             cartItemsWrap.innerHTML = `
                 <div class="cart-empty">
-                    <svg>
-                        <use
-                            href="#ic-empty-cart"
-                        ></use>
-                    </svg>
-                    <p>
-                        السلة لسه فاضية…
-                        يلا نملاها!
-                    </p>
+                    <div class="cart-empty-icon-wrap">
+                        <svg><use href="#ic-empty-cart"></use></svg>
+                    </div>
+                    <h4 class="cart-empty-title">السلة لسه فاضية</h4>
+                    <p class="cart-empty-text">يلا نكتشف أحدث تشكيلة ونملاها بالمنتجات المميزة!</p>
+                    <button type="button" class="cart-empty-btn" onclick="closeCart(); document.getElementById('shop')?.scrollIntoView({behavior:'smooth'});">
+                        تصفح المنتجات الأن
+                    </button>
                 </div>
             `;
 
             if (cartFoot) {
-                cartFoot.style.display =
-                    "none";
+                cartFoot.style.display = "none";
             }
 
             return;

@@ -325,7 +325,7 @@
                 <div class="user-info">
                     <span class="user-name">
                         <i class="fas fa-user-circle"></i>
-                        @User.Identity?.Name ?? "Admin"
+                        @(User.Identity?.Name ?? "Admin")
                     </span>
                     <a href="~/Identity/Account/Logout" class="btn btn-sm btn-outline-danger">
                         <i class="fas fa-sign-out-alt"></i> تسجيل خروج

@@ -11,7 +11,7 @@ namespace Infrastructure.InterFace.Services
     public interface IOrderService
     {
         Task<Order> CreateOrderAsync(OrderCreateRequest order);
-        Task<Order> GetOrderByIdAsync(string id);
+        Task<Order?> GetOrderByIdAsync(string id);
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task<Order> UpdateOrderAsync(Order order);
         Task<Order> MarkProductAsMissingAsync(string orderId, string productId);

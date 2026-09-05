@@ -72,7 +72,7 @@ namespace Project.Controllers
 
                 var missingOrders = orders?.Where(o => o.Status == OrderStatus.MissingItems).ToList() ?? new List<Order>();
                 var topProducts = products?.OrderByDescending(p => p.OldPrice).Take(5).ToList() ?? new List<ProductViewModel>();
-                var ordersByStatus = orders?.GroupBy(o => o.Status).Select(g => new { Status = g.Key.ToString(), Count = g.Count() }).ToList();
+                var ordersByStatus = orders?.GroupBy(o => o.Status).Select(g => (object)new { Status = g.Key.ToString(), Count = g.Count() }).ToList() ?? new List<object>();
                 var recentOrders = orders?.OrderByDescending(o => o.CreatedDate).Take(10).ToList() ?? new List<Order>();
 
                 ViewBag.MissingOrders = missingOrders;

@@ -4,8 +4,8 @@ using Infrastructure.InterFace;
 using Infrastructure.InterFace.Services;
 using Infrastructure.Services;
 using Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,31 +15,51 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDBContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AppDBContextConnectionSQL"));
 });
 
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<AppDBContext>();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<AppDBContext>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 builder.Services.AddRazorPages();
-builder.Services.AddTransient<AppDBContext>();
-builder.Services.AddTransient<ImageStore>();
-builder.Services.AddTransient<IProductService, ProductService>();
-builder.Services.AddTransient<ICategoryService, CategroyService>();
-builder.Services.AddTransient<IOrderService, OrderService>();
-
-builder.Services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
-
-
-
-
+builder.Services.AddScoped<ImageStore>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 
 var app = builder.Build();
+
+// Security Headers Middleware
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

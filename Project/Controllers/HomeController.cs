@@ -15,9 +15,9 @@ namespace Project.Controllers
         private readonly IProductService productService;
         private readonly IOrderService orderService;
         private readonly ImageStore imageStore;
-        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment hosting;
+        private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment hosting;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService, IOrderService orderService, ImageStore imageStore, Microsoft.AspNetCore.Hosting.IHostingEnvironment hosting)
+        public HomeController(ILogger<HomeController> logger, IProductService productService, IOrderService orderService, ImageStore imageStore, Microsoft.AspNetCore.Hosting.IWebHostEnvironment hosting)
         {
             _logger = logger;
             this.productService = productService;

@@ -50,6 +50,13 @@
                                         </div>
                                         <span class="fw-semibold fs-6" style="color: var(--ink, #20261f);">@category.CategoryName</span>
                                     </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background-color: var(--paper-2, #e7e0cf); color: var(--pine, #1f2a24); font-weight: bold;">
+                                            @(string.IsNullOrEmpty(category.CategoryNameInArabic) ? "?" : category.CategoryNameInArabic.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <span class="fw-semibold fs-6" style="color: var(--ink, #20261f);">@category.CategoryNameInArabic</span>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="d-flex justify-content-center align-items-center gap-2">

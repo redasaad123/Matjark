@@ -1,5 +1,9 @@
+@inject Infrastructure.InterFace.Services.ICategoryService CategoryService
+@{
+    var navCategories = await CategoryService.GetCategory();
+}
 <!DOCTYPE html>
-<html lang="en">
+<html  lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,14 +17,25 @@
     <header class="site">
         <div class="header-inner">
             <button class="icon-btn burger" id="burgerBtn" aria-label="القائمة"><svg><use href="#ic-menu" /></svg></button>
-            <a href="#" class="logo"><svg class="mark"><use href="#ic-hanger" /></svg> زي</a>
+            <a asp-controller="Home" asp-action="Index" class="logo"><img src="~/Logo/Logo.jpg" alt="متجرك" /> <span>متجرك</span></a>
             <nav class="main-nav" id="mainNav">
                 <ul>
-                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="hero" >الرئيسية</a></li>
-                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="man">رجالي</a></li>
-                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="women" >حريمي</a></li>
-                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="accessories">إكسسوارات</a></li>
-                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" asp-route-filter="sale">تخفيضات</a></li>
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" data-navfilter="all">الرئيسية</a></li>
+                    @if (navCategories != null && navCategories.Any())
+                    {
+                        foreach (var cat in navCategories)
+                        {
+                            if (!string.IsNullOrWhiteSpace(cat.CategoryName))
+                            {
+                                <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" data-navfilter="@cat.CategoryName">@cat.CategoryNameInArabic</a></li>
+                            }
+                        }
+                    }
+                    <li><a asp-controller="Home" asp-action="Index" asp-fragment="shop" data-navfilter="sale">تخفيضات</a></li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li><a asp-controller="Admin" asp-action="Dashboard">لوحة التحكم</a></li>
+                    }
                 </ul>
             </nav>
             <div class="header-actions">
@@ -31,7 +46,7 @@
             </div>
         </div>
     </header>
-    <div class="container-fluid">
+    <div class="">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -88,7 +103,7 @@
                 
                 <!-- Order Items -->
                 <div class="modal-order-items">
-                    <h4>ملخص الطلب</h4>
+                    <h4 class="fw-bold">ملخص الطلب</h4>
                     <div id="modalOrderList"></div>
                 </div>
                 
@@ -115,13 +130,13 @@
                     </div>
                     
                     <div class="modal-total">
-                        <span>الإجمالي</span>
+                        <span class="fw-bold" style="color:black; font-size:1.2rem">الإجمالي</span>
                         <span id="modalTotal">٠ ج.م</span>
                     </div>
                     
                     <div class="modal-actions">
-                        <button type="button" class="btn ghost" id="modalCancelBtn">إلغاء</button>
-                        <button type="submit" class="btn" id="modalConfirmBtn">تأكيد الطلب</button>
+                        <button type="button" class="btn  text-center" id="modalCancelBtn">إلغاء</button>
+                        <button type="submit" class="btn text-center "  id="modalConfirmBtn">تأكيد الطلب</button>
                     </div>
                 </form>
             </div>

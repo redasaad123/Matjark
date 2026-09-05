@@ -11,5 +11,7 @@ namespace Infrastructure.ViewModel
         public string? Id { get; set; }
 
         public string CategoryName { get; set; }
+
+        public string? CategoryNameInArabic { get; set; }
     }
 }

@@ -105,38 +105,39 @@ namespace Infrastructure.Services
         public async Task<Products> AddProduct(AddProductViewModel model)
         {
             if (model == null) 
-                throw new ArgumentNullException("model");
+                throw new ArgumentNullException(nameof(model));
   
             var product = new Products
             {
                 Id = Guid.NewGuid().ToString(),
-                Name = model.Name,
+                Name = model.Name ?? string.Empty,
                 OldPrice = model.OldPrice,
-                Sizes =  model.Sizes?.ToList() ?? new List<Sizes>(),
+                Sizes = model.Sizes?.ToList() ?? new List<Sizes>(),
                 Quantity = model.Quantity,
                 DiscountPercentage = model.DiscountPercentage,
-                Description = model.Description,
+                Description = model.Description ?? string.Empty,
                 IsDiscounted = model.IsDiscounted,
-                CategoryId = model.Cat,
+                CategoryId = model.Cat ?? string.Empty,
                 Gender = model.Gender,
-                ImageUrl = model?.GetImages
-
+                ImageUrl = model.GetImages ?? new List<string>()
             };
 
             await productsUnitOfWork.Entity.AddAsync(product);
-            productsUnitOfWork.SaveChanges();
+            await productsUnitOfWork.SaveChangesAsync();
             return product;
         }
 
         public async Task<Products?> UpdateProduct(string id, AddProductViewModel model)
         {
+            if (string.IsNullOrEmpty(id) || model == null) return null;
+
             var product = await productsUnitOfWork.Entity.GetById(id);
             if (product == null)
                 return null;
 
-            product.Name = model.Name;
-            product.CategoryId = model.Cat;
-            product.Description = model.Description;
+            product.Name = model.Name ?? string.Empty;
+            product.CategoryId = model.Cat ?? string.Empty;
+            product.Description = model.Description ?? string.Empty;
             product.DiscountPercentage = model.DiscountPercentage;
             product.Gender = model.Gender;
             product.IsDiscounted = model.IsDiscounted;
@@ -149,18 +150,20 @@ namespace Infrastructure.Services
             product.ImageUrl = model.GetImages ?? new List<string>();
 
             await productsUnitOfWork.Entity.UpdateAsync(product);
-            productsUnitOfWork.SaveChanges();
+            await productsUnitOfWork.SaveChangesAsync();
             return product;
         }
 
         public async Task<List<string>?> DeleteProduct(string id)
         {
+            if (string.IsNullOrEmpty(id)) return null;
+
             var product = await productsUnitOfWork.Entity.GetById(id);
             if (product != null)
             {
                 var images = product.ImageUrl;
                 productsUnitOfWork.Entity.Delete(product);
-                productsUnitOfWork.SaveChanges();
+                await productsUnitOfWork.SaveChangesAsync();
                 return images;
             }
             return null;

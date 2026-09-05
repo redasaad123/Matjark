@@ -1,4 +1,4 @@
-﻿using Infrastructure.InterFace;
+using Infrastructure.InterFace;
 using Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,11 @@ namespace Infrastructure.UnitOfWork
         public void SaveChanges()
         {
             context.SaveChanges();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await context.SaveChangesAsync();
         }
     }
 }

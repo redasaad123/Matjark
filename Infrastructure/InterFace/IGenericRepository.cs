@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,7 +11,7 @@ namespace Infrastructure.InterFace
     {
         Task<IEnumerable<T>> GetAllAsync();
 
-        Task<T> GetById(string Id);
+        Task<T?> GetById(string Id);
 
         Task<T> AddAsync(T entity);
 
@@ -25,10 +25,10 @@ namespace Infrastructure.InterFace
         Task<List<T>> FindAll(Expression<Func<T, bool>> predicate);
         Task<List<string>> FindAll(Expression<Func<T, bool>> predicate, Expression<Func<T, string>> Object);
 
-        T Find(Expression<Func<T, bool>> predicate);
+        T? Find(Expression<Func<T, bool>> predicate);
 
         Task<object> Mapping(Expression<Func<T, object>> Object);
-        Task<object> Find(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> Object);
+        Task<object?> Find(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> Object);
 
         Task<bool> Any(Expression<Func<T, bool>> predicate);
 

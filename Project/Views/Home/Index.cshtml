@@ -1,33 +1,9 @@
 @model List<Infrastructure.ViewModel.GetProductViewModel>
+@inject Infrastructure.InterFace.Services.ICategoryService CategoryService
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "الصفحة الرئيسية - متجرك";
+    var dynamicCategories = await CategoryService.GetCategory();
 }
-
-
-
-
-<!-- ============ HEADER ============ -->
-@* <header class="site">
-    <div class="header-inner">
-        <button class="icon-btn burger" id="burgerBtn" aria-label="القائمة"><svg><use href="#ic-menu" /></svg></button>
-        <a href="#" class="logo"><svg class="mark"><use href="#ic-hanger" /></svg> زي</a>
-        <nav class="main-nav" id="mainNav">
-            <ul>
-                <li><a href="#hero">الرئيسية</a></li>
-                <li><a href="#shop" data-navfilter="men">رجالي</a></li>
-                <li><a href="#shop" data-navfilter="women">حريمي</a></li>
-                <li><a href="#shop" data-navfilter="accessories">إكسسوارات</a></li>
-                <li><a href="#shop" data-navfilter="sale">تخفيضات</a></li>
-            </ul>
-        </nav>
-        <div class="header-actions">
-            <button class="icon-btn" id="cartBtn" aria-label="فتح السلة">
-                <svg><use href="#ic-cart" /></svg>
-                <span class="cart-badge" id="cartBadge">0</span>
-            </button>
-        </div>
-    </div>
-</header> *@
 
 <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
@@ -70,9 +46,16 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
                 <div class="filters" id="filters">
                     <button class="chip active" data-filter="all">الكل</button>
-                    <button class="chip" data-filter="man">رجالي</button>
-                    <button class="chip" data-filter="women">حريمي</button>
-                    <button class="chip" data-filter="accessories">إكسسوارات</button>
+                    @if (dynamicCategories != null && dynamicCategories.Any())
+                    {
+                        foreach (var cat in dynamicCategories)
+                        {
+                            if (!string.IsNullOrWhiteSpace(cat.CategoryName))
+                            {
+                                <button class="chip" data-filter="@cat.CategoryName">@cat.CategoryNameInArabic</button>
+                            }
+                        }
+                    }
                     <button class="chip" data-filter="sale">تخفيضات</button>
                 </div>
                 <div class="search-box">
@@ -114,9 +97,16 @@
         <div>
             <h4>تسوق</h4>
             <ul>
-                <li><a href="#shop" data-navfilter="man">رجالي</a></li>
-                <li><a href="#shop" data-navfilter="women">حريمي</a></li>
-                <li><a href="#shop" data-navfilter="accessories">إكسسوارات</a></li>
+                @if (dynamicCategories != null && dynamicCategories.Any())
+                {
+                    foreach (var cat in dynamicCategories)
+                    {
+                        if (!string.IsNullOrWhiteSpace(cat.CategoryName))
+                        {
+                            <li><a href="#shop" data-navfilter="@cat.CategoryName">@cat.CategoryNameInArabic</a></li>
+                        }
+                    }
+                }
                 <li><a href="#shop" data-navfilter="sale">تخفيضات</a></li>
             </ul>
         </div>

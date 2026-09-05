@@ -27,6 +27,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCategory(CategoryViewModel model)
         {
             if (!ModelState.IsValid) 
@@ -49,6 +50,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, CategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -62,6 +64,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
             if (!string.IsNullOrEmpty(id))

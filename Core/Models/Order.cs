@@ -1,6 +1,7 @@
 ﻿using Core.enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Core.Models
 {
     public class Order
     {
+        [Key]
         public string Id { get; set; }
 
         public List<OrderLine> OrderLines { get; set; }

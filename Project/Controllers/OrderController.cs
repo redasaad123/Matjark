@@ -43,6 +43,7 @@ namespace Project.Controllers
 
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateRequest request)
         {
             try
@@ -65,6 +66,7 @@ namespace Project.Controllers
 
         // تحديث حالة الطلب - تم التعبئة
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsCompleted(string id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
@@ -79,6 +81,7 @@ namespace Project.Controllers
 
         // تحديث حالة الطلب - فيه حاجة ناقصة
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsMissingItems(string id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
@@ -93,6 +96,7 @@ namespace Project.Controllers
 
         // تحديث حالة الطلب - تم التسليم للمورد
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsDeliveredToSupplier(string id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
@@ -107,6 +111,7 @@ namespace Project.Controllers
 
         // وضع علامة على منتج معين كناقص
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkProductAsMissing(string orderId, string productId)
         {
             try
@@ -123,6 +128,7 @@ namespace Project.Controllers
 
         // استرجاع منتج من قائمة الناقصة إلى الأصلية
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestoreProduct(string orderId, string missingProductId)
         {
             try
@@ -139,6 +145,7 @@ namespace Project.Controllers
 
         // حذف الطلب بالكامل
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteOrder(string id)
         {
             try

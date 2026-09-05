@@ -9,11 +9,10 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
                     <h1 class="text-dark">تفاصيل الطلب</h1>
                     <p class="text-muted">
-                        العميل: <strong>@Model.Customer?.Name ?? "بدون اسم"</strong> 
-                        <span class="ms-3">| رقم الطلب: @Model.Id.Substring(0, 8)...</span>
+                        العميل: <strong>@(Model.Customer?.Name ?? "بدون اسم")</strong> 
+                        <span class="ms-3">| رقم الطلب: @(Model.Id != null && Model.Id.Length >= 8 ? Model.Id.Substring(0, 8) : Model.Id)...</span>
                     </p>
                 </div>
                 <a href="@Url.Action("Index", "Order")" class="btn btn-outline-secondary">
@@ -96,6 +95,7 @@
                                             <td>@(line.Price* line.Quantity) ج.م</td>
                                             <td>
                                                 <form method="post" action="@Url.Action("MarkProductAsMissing", "Order")" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="orderId" value="@Model.Id" />
                                                     <input type="hidden" name="productId" value="@line.ProductId" />
                                                     <button type="submit" class="btn btn-sm btn-danger" title="هذا المنتج ناقص">
@@ -135,7 +135,7 @@
                                         <div class="row mb-2">
                                             <div class="col-md-6">
                                                 <p class="mb-2">
-                                                    <strong>�️ اسم المنتج:</strong><br/>
+                                                    <strong>🛒 اسم المنتج:</strong><br/>
                                                     <span style="font-size: 1.1em; color: #d63031; font-weight: bold;">@line.ProductName</span>
                                                 </p>
                                             </div>
@@ -169,6 +169,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <form method="post" action="@Url.Action("RestoreProduct", "Order")">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="orderId" value="@Model.Id" />
                                             <input type="hidden" name="missingProductId" value="@line.ProductId" />
                                             <button type="submit" class="btn btn-success btn-lg w-100">
@@ -204,6 +205,7 @@
                 <div class="card-body">
                     <div class="d-flex gap-2 flex-wrap justify-content-end">
                         <form method="post" action="@Url.Action("MarkAsCompleted", "Order")" style="display:inline;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
                             <button type="submit" class="btn btn-success btn-lg">
                                 ✓ تم التعبئة
@@ -211,6 +213,7 @@
                         </form>
 
                         <form method="post" action="@Url.Action("MarkAsMissingItems", "Order")" style="display:inline;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
                             <button type="submit" class="btn btn-warning btn-lg">
                                 ⚠ فيه حاجة ناقصة
@@ -218,6 +221,7 @@
                         </form>
 
                         <form method="post" action="@Url.Action("MarkAsDeliveredToSupplier", "Order")" style="display:inline;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
                             <button type="submit" class="btn btn-primary btn-lg">
                                 📦 تسليم للمورد

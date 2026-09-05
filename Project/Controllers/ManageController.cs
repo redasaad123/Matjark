@@ -39,6 +39,7 @@ namespace Project.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProducts(AddProductViewModel model)
         {
             if (!ModelState.IsValid)
@@ -52,7 +53,7 @@ namespace Project.Controllers
 
             if (model.Images != null && model.Images.Count > 0)
             {
-                url = imageStore.StoreImage(model.Images);
+                url = await imageStore.StoreImageAsync(model.Images);
                 model.GetImages = url;
             }
 
@@ -78,6 +79,7 @@ namespace Project.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProducts(string id, AddProductViewModel model)
         {
             if (!ModelState.IsValid)
@@ -100,7 +102,7 @@ namespace Project.Controllers
 
             if (model.Images != null && model.Images.Count > 0)
             {
-                var newUrls = imageStore.StoreImage(model.Images);
+                var newUrls = await imageStore.StoreImageAsync(model.Images);
                 if (newUrls != null && newUrls.Any())
                 {
                     currentImages.AddRange(newUrls);
@@ -118,6 +120,7 @@ namespace Project.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             if (!string.IsNullOrEmpty(id))

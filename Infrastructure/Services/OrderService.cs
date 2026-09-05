@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using Core.Models;
 using Infrastructure.InterFace;
 using Infrastructure.InterFace.Services;
@@ -57,19 +57,21 @@ namespace Infrastructure.Services
 
             // Add to repository
             await _unitOfWork.Entity.AddAsync(order);
-            _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return order;
         }
 
-        public async Task<Order> GetOrderByIdAsync(string id)
+        public async Task<Order?> GetOrderByIdAsync(string id)
         {
+            if (string.IsNullOrEmpty(id)) return null;
             return await _unitOfWork.Entity.GetById(id);
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
-            return await _unitOfWork.Entity.GetAllAsync();
+            var orders = await _unitOfWork.Entity.GetAllAsync();
+            return orders ?? Enumerable.Empty<Order>();
         }
 
         public async Task<Order> UpdateOrderAsync(Order order)
@@ -78,7 +80,7 @@ namespace Infrastructure.Services
                 throw new ArgumentNullException(nameof(order));
 
             await _unitOfWork.Entity.UpdateAsync(order);
-            _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return order;
         }
@@ -109,10 +111,10 @@ namespace Infrastructure.Services
             });
 
             // Remove from order lines
-            order.OrderLines.Remove(missingLine);
+            order.OrderLines?.Remove(missingLine);
 
             // Recalculate total price
-            if (order.OrderLines.Any())
+            if (order.OrderLines != null && order.OrderLines.Any())
             {
                 order.TotalPrice = order.OrderLines.Sum(ol => ol.Price * ol.Quantity);
             }
@@ -123,7 +125,7 @@ namespace Infrastructure.Services
 
             // Update order in database
             await _unitOfWork.Entity.UpdateAsync(order);
-            _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return order;
         }
@@ -166,7 +168,7 @@ namespace Infrastructure.Services
 
             // Update order in database
             await _unitOfWork.Entity.UpdateAsync(order);
-            _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return order;
         }
@@ -175,12 +177,14 @@ namespace Infrastructure.Services
         {
             try
             {
+                if (string.IsNullOrEmpty(orderId)) return false;
+
                 var order = await _unitOfWork.Entity.GetById(orderId);
                 if (order == null)
                     return false;
 
                 _unitOfWork.Entity.Delete(order);
-                _unitOfWork.SaveChanges();
+                await _unitOfWork.SaveChangesAsync();
                 return true;
             }
             catch (Exception)
