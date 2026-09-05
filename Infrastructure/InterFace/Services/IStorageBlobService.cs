@@ -9,6 +9,6 @@ namespace Infrastructure.InterFace.Services
 {
     public interface IStorageBlobService
     {
-        Task<List<string>> UploadFileAsync(List< IFormFile> file, string folderName);
+        Task<List<string>> UploadFileAsync(List< IFormFile> file);
     }
 }

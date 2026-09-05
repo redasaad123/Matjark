@@ -27,7 +27,7 @@ namespace Infrastructure.Services
             _containerName = _configuration["AzureStorage:ContainerName"] ?? "uploads";
         }
 
-        public async Task<List<string>> UploadFileAsync(List<IFormFile> files, string folderName = "Images")
+        public async Task<List<string>> UploadFileAsync(List<IFormFile> files)
         {
             if (_blobServiceClient == null)
             {
@@ -49,7 +49,7 @@ namespace Infrastructure.Services
             {
                 if (file.Length > 0)
                 {
-                    var blobName = $"{folderName}/{Guid.NewGuid()}_{file.FileName}";
+                    var blobName = $"{Guid.NewGuid()}_{file.FileName}";
                     var blobClient = containerClient.GetBlobClient(blobName);
 
                     using (var stream = file.OpenReadStream())

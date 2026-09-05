@@ -57,7 +57,7 @@ namespace Project.Controllers
             {
                 try
                 {
-                    url = await storageBlob.UploadFileAsync(model.Images, "Images");
+                    url = await storageBlob.UploadFileAsync(model.Images);
                 }
                 catch
                 {
@@ -115,7 +115,7 @@ namespace Project.Controllers
                 List<string> newUrls;
                 try
                 {
-                    newUrls = await storageBlob.UploadFileAsync(model.Images, "Images");
+                    newUrls = await storageBlob.UploadFileAsync(model.Images);
                 }
                 catch
                 {
