@@ -79,6 +79,9 @@ jobs:
 
           TARGET_DIR="/home/$SSH_USER"
 
+          # Clean up any existing nginx.conf file/directory on remote server to prevent permission or folder conflicts
+          ssh $SSH_USER@${{ secrets.IP_MASTER }} "sudo rm -rf $TARGET_DIR/nginx.conf"
+
           # copy docker-compose
           scp docker-compose.yml $SSH_USER@${{ secrets.IP_MASTER }}:$TARGET_DIR/docker-compose.yml
 
@@ -87,7 +90,7 @@ jobs:
 
           # move nginx config + test + reload
           ssh $SSH_USER@${{ secrets.IP_MASTER }} "
-            sudo mv /home/$SSH_USER/nginx.conf /etc/nginx/sites-available/default &&
+            sudo mv $TARGET_DIR/nginx.conf /etc/nginx/sites-available/default &&
             sudo nginx -t &&
             sudo systemctl reload nginx
           "
