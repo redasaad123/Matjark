@@ -12,6 +12,23 @@ services:
       - webnet
     restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/sites-available/default
+      - ./webroot:/var/www/html
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+    depends_on:
+      - backend
+    networks:
+      - webnet
+    restart: unless-stopped
+
   certbot:
     image: certbot/certbot
     container_name: certbot
