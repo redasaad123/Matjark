@@ -5,10 +5,19 @@ using Infrastructure.InterFace;
 using Infrastructure.InterFace.Services;
 using Infrastructure.Services;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Data Protection Key Persistence
+var keysFolder = Path.Combine(builder.Environment.ContentRootPath, "dataprotection-keys");
+Directory.CreateDirectory(keysFolder);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
+    .SetApplicationName("MatjarkApp");
 
 // Configure Shopify Settings
 builder.Services.Configure<ShopifySettings>(builder.Configuration.GetSection("Shopify"));

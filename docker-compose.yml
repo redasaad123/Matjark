@@ -6,6 +6,7 @@ services:
       - .env
     volumes:
       - ./Images:/app/Project/wwwroot/Images
+      - ./dataprotection-keys:/app/dataprotection-keys
     ports:
       - "8000:8000"
     expose:

@@ -43,10 +43,18 @@ namespace Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(shopUrl)) return string.Empty;
 
-            return shopUrl
+            var clean = shopUrl
                 .Replace("https://", "", StringComparison.OrdinalIgnoreCase)
                 .Replace("http://", "", StringComparison.OrdinalIgnoreCase)
-                .TrimEnd('/');
+                .TrimEnd('/')
+                .Trim();
+
+            if (!clean.Contains('.'))
+            {
+                clean = $"{clean}.myshopify.com";
+            }
+
+            return clean;
         }
 
         private async Task<string> GetAccessTokenAsync()
@@ -113,6 +121,11 @@ namespace Infrastructure.Services
                 var shopService = new ShopService(shopUrl, accessToken);
                 var shop = await shopService.GetAsync();
                 return shop != null && !string.IsNullOrEmpty(shop.Name);
+            }
+            catch (ShopifyHttpException httpEx)
+            {
+                _logger.LogError(httpEx, $"Failed to connect to Shopify API for store '{_settings.ShopUrl}'. Check that ShopUrl is your '.myshopify.com' domain and AccessToken/Credentials are valid.");
+                return false;
             }
             catch (Exception ex)
             {
