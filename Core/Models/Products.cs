@@ -26,8 +26,9 @@ namespace Core.Models
 
         public List<string>? ImageUrl { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? OldPrice { get; set; }
-        public decimal? UnitPrice => IsDiscounted ? OldPrice - (OldPrice * DiscountPercentage) : OldPrice   ;
+        public decimal? UnitPrice => IsDiscounted ? OldPrice - (OldPrice * DiscountPercentage) : OldPrice;
 
         public int Quantity { get; set; }
 
@@ -35,6 +36,7 @@ namespace Core.Models
 
         public bool IsDiscounted { get; set; } = false;
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? DiscountPercentage { get; set; }
 
         // Shopify Sync Tracking

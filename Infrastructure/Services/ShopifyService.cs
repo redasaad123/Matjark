@@ -39,10 +39,24 @@ namespace Infrastructure.Services
             _cache = cache;
         }
 
-        // Method للحصول على Access Token تلقائياً وتخزينه في الكاش لمدة 23 ساعة
+        private string CleanShopUrl(string shopUrl)
+        {
+            if (string.IsNullOrWhiteSpace(shopUrl)) return string.Empty;
+
+            return shopUrl
+                .Replace("https://", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("http://", "", StringComparison.OrdinalIgnoreCase)
+                .TrimEnd('/');
+        }
+
         private async Task<string> GetAccessTokenAsync()
         {
-            if (!string.IsNullOrEmpty(_settings.ClientSecret))
+            if (!string.IsNullOrEmpty(_settings.AccessToken))
+            {
+                return _settings.AccessToken;
+            }
+
+            if (!string.IsNullOrEmpty(_settings.ClientSecret) && string.IsNullOrEmpty(_settings.ClientId))
             {
                 return _settings.ClientSecret;
             }
@@ -53,8 +67,14 @@ namespace Infrastructure.Services
                 return cachedToken;
             }
 
+            var cleanUrl = CleanShopUrl(_settings.ShopUrl);
+            if (string.IsNullOrEmpty(cleanUrl))
+            {
+                throw new InvalidOperationException("Shopify ShopUrl is not configured.");
+            }
+
             var client = _httpClientFactory.CreateClient();
-            var requestUrl = $"https://{_settings.ShopUrl}/admin/oauth/access_token";
+            var requestUrl = $"https://{cleanUrl}/admin/oauth/access_token";
 
             var response = await client.PostAsJsonAsync(requestUrl, new
             {
@@ -82,8 +102,15 @@ namespace Infrastructure.Services
         {
             try
             {
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
+                if (string.IsNullOrEmpty(shopUrl))
+                {
+                    _logger.LogWarning("Shopify ShopUrl is empty or not configured.");
+                    return false;
+                }
+
                 var accessToken = await GetAccessTokenAsync();
-                var shopService = new ShopService(_settings.ShopUrl, accessToken);
+                var shopService = new ShopService(shopUrl, accessToken);
                 var shop = await shopService.GetAsync();
                 return shop != null && !string.IsNullOrEmpty(shop.Name);
             }
@@ -99,8 +126,9 @@ namespace Infrastructure.Services
             int importedCount = 0;
             try
             {
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
                 var accessToken = await GetAccessTokenAsync();
-                var shopifyProductService = new ShopifySharp.ProductService(_settings.ShopUrl, accessToken);
+                var shopifyProductService = new ShopifySharp.ProductService(shopUrl, accessToken);
                 var shopifyProducts = await shopifyProductService.ListAsync();
 
                 var defaultCategory = await _dbContext.Categories.FirstOrDefaultAsync();
@@ -181,8 +209,9 @@ namespace Infrastructure.Services
                 var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
                 if (product == null) return false;
 
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
                 var accessToken = await GetAccessTokenAsync();
-                var shopifyProductService = new ShopifySharp.ProductService(_settings.ShopUrl, accessToken);
+                var shopifyProductService = new ShopifySharp.ProductService(shopUrl, accessToken);
 
                 if (product.ShopifyProductId.HasValue)
                 {
@@ -242,8 +271,9 @@ namespace Infrastructure.Services
         {
             try
             {
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
                 var accessToken = await GetAccessTokenAsync();
-                var locationService = new LocationService(_settings.ShopUrl, accessToken);
+                var locationService = new LocationService(shopUrl, accessToken);
                 var locations = await locationService.ListAsync();
                 var locationId = locations.Items.FirstOrDefault()?.Id;
 
@@ -253,7 +283,7 @@ namespace Infrastructure.Services
                     return false;
                 }
 
-                var inventoryLevelService = new InventoryLevelService(_settings.ShopUrl, accessToken);
+                var inventoryLevelService = new InventoryLevelService(shopUrl, accessToken);
                 await inventoryLevelService.SetAsync(new InventoryLevel
                 {
                     InventoryItemId = inventoryItemId,
@@ -276,8 +306,9 @@ namespace Infrastructure.Services
             int importedCount = 0;
             try
             {
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
                 var accessToken = await GetAccessTokenAsync();
-                var shopifyOrderService = new ShopifySharp.OrderService(_settings.ShopUrl, accessToken);
+                var shopifyOrderService = new ShopifySharp.OrderService(shopUrl, accessToken);
                 var orders = await shopifyOrderService.ListAsync();
 
                 foreach (var sOrder in orders.Items)
@@ -326,8 +357,9 @@ namespace Infrastructure.Services
         {
             try
             {
+                var shopUrl = CleanShopUrl(_settings.ShopUrl);
                 var accessToken = await GetAccessTokenAsync();
-                var fulfillmentService = new FulfillmentService(_settings.ShopUrl, accessToken);
+                var fulfillmentService = new FulfillmentService(shopUrl, accessToken);
                 var fulfillment = new FulfillmentShipping
                 {
                     NotifyCustomer = true

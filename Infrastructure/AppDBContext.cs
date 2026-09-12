@@ -1,4 +1,4 @@
-﻿using Core.Models;
+using Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +18,37 @@ namespace Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Products>(entity =>
+            {
+                entity.Property(p => p.OldPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(p => p.DiscountPercentage)
+                    .HasColumnType("decimal(18,2)");
+            });
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.Property(o => o.TotalPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.OwnsMany(o => o.OrderLines, line =>
+                {
+                    line.Property(l => l.Price)
+                        .HasColumnType("decimal(18,2)");
+                });
+
+                entity.OwnsMany(o => o.MissingOrderLines, line =>
+                {
+                    line.Property(l => l.Price)
+                        .HasColumnType("decimal(18,2)");
+                });
+            });
         }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Products> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
-
-
     }
 }
