@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,5 +24,9 @@ namespace Core.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         public List<MissingOrderLine> MissingOrderLines { get; set; }
+
+        // Shopify Sync Tracking
+        public long? ShopifyOrderId { get; set; }
+        public string? ShopifyOrderNumber { get; set; }
     }
 }

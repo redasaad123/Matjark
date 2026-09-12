@@ -1,4 +1,4 @@
-﻿using Core.enums;
+using Core.enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -37,8 +37,9 @@ namespace Core.Models
 
         public decimal? DiscountPercentage { get; set; }
 
-
-
-
+        // Shopify Sync Tracking
+        public long? ShopifyProductId { get; set; }
+        public long? ShopifyVariantId { get; set; }
+        public long? ShopifyInventoryItemId { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using Core.Models;
 using Core.Services;
 using Infrastructure;
 using Infrastructure.InterFace;
@@ -9,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Configure Shopify Settings
+builder.Services.Configure<ShopifySettings>(builder.Configuration.GetSection("Shopify"));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -43,6 +45,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IStorageBlobService, StorageBlobServices>();
+builder.Services.AddScoped<IShopifyService, ShopifyService>();
 builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 
 var app = builder.Build();
