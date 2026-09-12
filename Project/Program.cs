@@ -8,16 +8,8 @@ using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configure Data Protection Key Persistence
-var keysFolder = Path.Combine(builder.Environment.ContentRootPath, "dataprotection-keys");
-Directory.CreateDirectory(keysFolder);
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
-    .SetApplicationName("MatjarkApp");
 
 // Configure Shopify Settings
 builder.Services.Configure<ShopifySettings>(builder.Configuration.GetSection("Shopify"));
@@ -28,6 +20,11 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppDBContextConnectionSQL"));
 });
+
+// Configure Data Protection Key Persistence in SQL DB via EF Core
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<AppDBContext>()
+    .SetApplicationName("MatjarkApp");
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {

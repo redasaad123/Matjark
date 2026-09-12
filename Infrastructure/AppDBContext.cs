@@ -1,4 +1,5 @@
 using Core.Models;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure
 {
-    public class AppDBContext : IdentityDbContext<IdentityUser>
+    public class AppDBContext : IdentityDbContext<IdentityUser>, IDataProtectionKeyContext
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
 
@@ -50,5 +51,6 @@ namespace Infrastructure
         public DbSet<Category> Categories { get; set; }
         public DbSet<Products> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
     }
 }
