@@ -4,6 +4,8 @@ services:
     image: redasaad123/matgark:latest
     env_file:
       - .env
+    volumes:
+      - ./Images:/app/Project/wwwroot/Images
     ports:
       - "8000:8000"
     expose:
