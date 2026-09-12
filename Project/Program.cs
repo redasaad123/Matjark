@@ -30,6 +30,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDBContext>();
 
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
+
 //builder.Services.ConfigureApplicationCookie(options =>
 //{
 //    options.Cookie.HttpOnly = true;

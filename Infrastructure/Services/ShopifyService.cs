@@ -42,9 +42,9 @@ namespace Infrastructure.Services
         // Method للحصول على Access Token تلقائياً وتخزينه في الكاش لمدة 23 ساعة
         private async Task<string> GetAccessTokenAsync()
         {
-            if (!string.IsNullOrEmpty(_settings.AccessToken))
+            if (!string.IsNullOrEmpty(_settings.ClientSecret))
             {
-                return _settings.AccessToken;
+                return _settings.ClientSecret;
             }
 
             const string cacheKey = "Shopify_Access_Token";
